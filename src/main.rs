@@ -1,17 +1,12 @@
-use clap::Parser;
 use std::io::BufRead;
 
-/// The command-line arguments
-#[derive(Parser)]
-pub struct Args {
-    /// The file to view
-    #[clap(default_value = "-")]
-    filename: std::path::PathBuf,
-}
+use clap::Parser;
+
+mod cli;
 
 /// The entry-point of the application
 fn main() {
-    let args = Args::parse();
+    let args = cli::Args::parse();
     match run(args) {
         Ok(_) => std::process::exit(0),
         Err(e) => {
@@ -22,7 +17,7 @@ fn main() {
 }
 
 /// The main logic of the application
-fn run(args: Args) -> Result<(), Box<dyn std::error::Error>> {
+fn run(args: cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Check if the file exists...
     if !args.filename.exists() {
         // And return early with an error if it doesn't
