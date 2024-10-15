@@ -1,7 +1,5 @@
-use std::io::Read;
-
-// Traits
 use clap::Parser;
+use std::io::BufRead;
 
 /// The command-line arguments
 #[derive(Parser)]
@@ -35,10 +33,18 @@ fn run(args: Args) -> Result<(), Box<dyn std::error::Error>> {
         .into());
     }
 
-    let mut file = std::fs::File::open(&args.filename).expect("Failed to open the file");
-    let mut contents: String = String::new();
-    let res = file.read_to_string(&mut contents)?;
-    println!("{}", contents);
-    println!("Read: {}", res);
+    // Open the file and instantiate a BufReader
+    let file = std::fs::File::open(&args.filename).expect("Failed to open the file");
+    let mut reader = std::io::BufReader::new(&file);
+
+    // Read and print all the lines
+    loop {
+        let mut line = String::new();
+        if reader.read_line(&mut line)? == 0 {
+            break;
+        }
+        print!("{}", line)
+    }
+
     Ok(())
 }
