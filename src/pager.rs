@@ -2,7 +2,7 @@ use std::io::BufRead;
 
 use crossterm::{
     cursor,
-    event::{Event, KeyCode, KeyEventKind, MouseEvent, MouseEventKind},
+    event::{Event, KeyCode, KeyEventKind, MouseEventKind},
     terminal, ExecutableCommand,
 };
 
