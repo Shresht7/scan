@@ -51,6 +51,9 @@ impl Pager {
             stdout.execute(terminal::Clear(terminal::ClearType::All))?;
             stdout.execute(cursor::MoveTo(0, 0))?;
 
+            // Buffer more lines as needed based on the self.scroll and self.page_height variables
+            self.buffer_lines(&mut reader)?;
+
             // Read a page's worth of lines and print them
             for line in &self.lines[self.view_start()..self.view_end()] {
                 println!("{}", line)
@@ -58,9 +61,6 @@ impl Pager {
 
             // Handle key events before continuing to loop
             self.handle_events()?;
-
-            // Buffer more lines as needed based on the self.scroll and self.page_height variables
-            self.buffer_lines(&mut reader)?;
         }
 
         // Restore the terminal by exiting the Alternate Screen Buffer when we're done
@@ -73,7 +73,8 @@ impl Pager {
     fn buffer_lines(&mut self, reader: &mut Box<dyn BufRead>) -> std::io::Result<()> {
         for line in reader.lines() {
             self.lines.push(line?);
-            if self.lines.len() > self.view_end() {
+            // Read up to the viewport's end + one more page
+            if self.lines.len() > self.view_end() + self.page_height {
                 break;
             }
         }
