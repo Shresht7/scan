@@ -29,7 +29,7 @@ impl Pager {
     }
 
     /// The main application logic of the pager
-    pub fn run(&mut self, args: cli::Args) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn run(&mut self, args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
         // Open the file and instantiate a BufReader
         let mut file = std::fs::File::open(&args.filename).expect("Failed to open the file");
         let mut reader = std::io::BufReader::new(&file);
