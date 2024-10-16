@@ -1,4 +1,5 @@
 use clap::Parser;
+use crossterm::tty::IsTty;
 
 mod cli;
 mod pager;
@@ -22,11 +23,15 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Validate the command-line arguments
     args.validate()?;
 
-    // If the passthrough flag is set, simply pipe the contents out
-    if args.passthrough {
+    // Get a reference to STDOUT
+    let mut stdout = std::io::stdout();
+
+    // Determine if we are in passthrough mode.
+    // If the `passthrough` flag is set, or the terminal is not interactive...
+    // we simply pipe the output through
+    if args.passthrough || !stdout.is_tty() {
         let mut input = std::fs::File::open(&args.filename).expect("Failed to open the file");
-        let mut output = std::io::stdout();
-        std::io::copy(&mut input, &mut output)?;
+        std::io::copy(&mut input, &mut stdout)?;
         return Ok(());
     }
 
