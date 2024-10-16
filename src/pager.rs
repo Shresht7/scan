@@ -54,7 +54,7 @@ impl Pager {
             stdout.execute(cursor::MoveTo(0, 0))?;
 
             // Read a page's worth of lines and print them
-            for line in &self.lines[self.scroll..(self.scroll + self.page_height)] {
+            for line in &self.lines[self.scroll..(self.scroll + self.page_height - 1)] {
                 println!("{}", line)
             }
 
