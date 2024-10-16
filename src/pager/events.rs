@@ -28,15 +28,15 @@ impl Pager {
 
     /// Scroll up by the given number of lines
     fn scroll_up(&mut self, n: usize) {
-        if self.scroll > 0 {
-            self.scroll = self.scroll.saturating_sub(n);
+        if self.view_start() > 0 {
+            self.scroll_offset = self.scroll_offset.saturating_sub(n);
         }
     }
 
     /// Scroll down by the given number of lines
     fn scroll_down(&mut self, n: usize) {
-        if self.scroll + self.page_height - 1 < self.lines.len() {
-            self.scroll = self.scroll.saturating_add(n);
+        if self.view_end() < self.lines.len() {
+            self.scroll_offset = self.scroll_offset.saturating_add(n);
         }
     }
 }

@@ -10,8 +10,8 @@ pub struct Pager {
     /// The collection of buffered lines
     lines: Vec<String>,
 
-    /// The index of the first-line to display
-    scroll: usize,
+    /// The index of the first-line to display in the viewport
+    scroll_offset: usize,
     /// The max height of the page in the terminal
     page_height: usize,
 
@@ -24,7 +24,7 @@ impl Pager {
     pub fn init(height: usize) -> Pager {
         Self {
             lines: Vec::new(),
-            scroll: 0,
+            scroll_offset: 0,
             page_height: height,
             exit: false,
         }
@@ -52,7 +52,7 @@ impl Pager {
             stdout.execute(cursor::MoveTo(0, 0))?;
 
             // Read a page's worth of lines and print them
-            for line in &self.lines[self.scroll..(self.scroll + self.page_height - 1)] {
+            for line in &self.lines[self.view_start()..self.view_end()] {
                 println!("{}", line)
             }
 
@@ -73,11 +73,24 @@ impl Pager {
     fn buffer_lines(&mut self, reader: &mut Box<dyn BufRead>) -> std::io::Result<()> {
         for line in reader.lines() {
             self.lines.push(line?);
-            if self.lines.len() >= self.scroll + self.page_height {
+            if self.lines.len() > self.view_end() {
                 break;
             }
         }
         Ok(())
+    }
+
+    // HELPER FUNCTIONS
+    // ----------------
+
+    /// The start of the viewport. Index of the first visible line
+    fn view_start(&self) -> usize {
+        self.scroll_offset
+    }
+
+    /// The end of the viewport. Index of the last visible line
+    fn view_end(&self) -> usize {
+        self.scroll_offset + self.page_height - 1
     }
 
     /// Set the exit flag to indicate that we need to exit the program
