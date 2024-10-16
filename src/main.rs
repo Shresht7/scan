@@ -21,6 +21,13 @@ fn main() {
 fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Validate the command-line arguments
     args.validate()?;
+
+    // Get the terminal width and height from crossterm
+    let (_, height) = crossterm::terminal::size()?;
+
+    // Initialize the Pager application
+    let mut pager = pager::Pager::init(height as usize);
+
     // Run the Pager application
-    pager::Pager::init().run(args)
+    pager.run(args)
 }

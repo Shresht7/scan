@@ -20,10 +20,10 @@ pub struct Pager {
 
 impl Pager {
     /// Instantiate the Pager application
-    pub fn init() -> Pager {
+    pub fn init(height: usize) -> Pager {
         Self {
             scroll: 0,
-            page_height: terminal::size().unwrap_or((120, 40)).1 as usize - 1,
+            page_height: height,
             exit: false,
         }
     }
