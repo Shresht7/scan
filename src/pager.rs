@@ -1,6 +1,10 @@
 use std::io::{BufRead, Seek};
 
-use crossterm::{cursor, terminal, ExecutableCommand};
+use crossterm::{
+    cursor,
+    event::{Event, KeyCode, KeyEventKind},
+    terminal, ExecutableCommand,
+};
 
 use crate::cli;
 
@@ -66,13 +70,35 @@ impl Pager {
                 print!("{}", line)
             }
 
-            // ! FIXME: This currently run indefinitely! Handle exit event using crossterm
+            // Handle key events before continuing to loop
+            self.handle_events()?;
         }
 
         // Restore the terminal by exiting the Alternate Screen Buffer when we're done
         stdout.execute(terminal::LeaveAlternateScreen)?;
 
         Ok(())
+    }
+
+    /// Handle crossterm events like key-presses
+    fn handle_events(&mut self) -> std::io::Result<()> {
+        match crossterm::event::read()? {
+            // It's important to check that the event is a key-press event as
+            // crossterm also emits key-release and repeat events on Windows.
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                match key_event.code {
+                    KeyCode::Esc | KeyCode::Char('q') => self.exit(),
+                    _ => {}
+                }
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    /// Set the exit flag to indicate that we exit the program loop
+    fn exit(&mut self) {
+        self.exit = true;
     }
 
     /// Validate that all arguments are as they should be
