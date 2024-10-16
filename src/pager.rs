@@ -9,6 +9,9 @@ pub struct Pager {
     scroll: u32,
     /// The max height of the page in the terminal
     page_height: usize,
+
+    /// If true, exit the program
+    exit: bool,
 }
 
 impl Pager {
@@ -17,6 +20,7 @@ impl Pager {
         Self {
             scroll: 0,
             page_height: terminal::size().unwrap_or((120, 40)).1 as usize - 1,
+            exit: false,
         }
     }
 
@@ -38,7 +42,8 @@ impl Pager {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
         stdout.execute(cursor::MoveTo(0, 0))?;
 
-        loop {
+        // The main program loop. Break when the exit flag is set.
+        while !self.exit {
             // Clear the screen and move the cursor to the top
             stdout.execute(terminal::Clear(terminal::ClearType::All))?;
             stdout.execute(cursor::MoveTo(0, 0))?;
