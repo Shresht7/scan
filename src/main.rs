@@ -30,7 +30,8 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // If the `passthrough` flag is set, or the terminal is not interactive...
     // we simply pipe the output through
     if args.passthrough || !stdout.is_tty() {
-        let mut input = std::fs::File::open(&args.filename).expect("Failed to open the file");
+        let mut input =
+            std::fs::File::open(args.filename.clone().unwrap()).expect("Failed to open the file");
         std::io::copy(&mut input, &mut stdout)?;
         return Ok(());
     }

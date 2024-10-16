@@ -31,7 +31,8 @@ impl Pager {
     /// The main application logic of the pager
     pub fn run(&mut self, args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
         // Open the file and instantiate a BufReader
-        let mut file = std::fs::File::open(&args.filename).expect("Failed to open the file");
+        let mut file =
+            std::fs::File::open(args.filename.clone().unwrap()).expect("Failed to open the file");
         let mut reader = std::io::BufReader::new(&file);
 
         // Prepare stdout by entering the Alternate Screen Buffer,
