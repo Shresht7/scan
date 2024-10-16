@@ -6,6 +6,10 @@ pub struct Args {
     /// The file to view
     #[clap(default_value = "-")]
     pub filename: std::path::PathBuf,
+
+    /// Pass the contents through without running the interactive Pager
+    #[clap(short, long)]
+    pub passthrough: bool,
 }
 
 impl Args {

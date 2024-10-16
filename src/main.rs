@@ -22,6 +22,14 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Validate the command-line arguments
     args.validate()?;
 
+    // If the passthrough flag is set, simply pipe the contents out
+    if args.passthrough {
+        let mut input = std::fs::File::open(&args.filename).expect("Failed to open the file");
+        let mut output = std::io::stdout();
+        std::io::copy(&mut input, &mut output)?;
+        return Ok(());
+    }
+
     // Get the terminal width and height from crossterm
     let (_, height) = crossterm::terminal::size()?;
 
