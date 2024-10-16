@@ -1,4 +1,4 @@
-use std::io::{BufRead, Seek};
+use std::io::BufRead;
 
 use crossterm::{
     cursor,
@@ -6,11 +6,14 @@ use crossterm::{
     terminal, ExecutableCommand,
 };
 
-use crate::cli;
+use crate::{cli, helpers};
 
 pub struct Pager {
+    /// The collection of all the lines
+    lines: Vec<String>,
+
     /// The index of the first-line to display
-    scroll: u32,
+    scroll: usize,
     /// The max height of the page in the terminal
     page_height: usize,
 
@@ -22,6 +25,7 @@ impl Pager {
     /// Instantiate the Pager application
     pub fn init(height: usize) -> Pager {
         Self {
+            lines: Vec::new(),
             scroll: 0,
             page_height: height,
             exit: false,
@@ -30,10 +34,12 @@ impl Pager {
 
     /// The main application logic of the pager
     pub fn run(&mut self, args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
-        // Open the file and instantiate a BufReader
-        let mut file =
-            std::fs::File::open(args.filename.clone().unwrap()).expect("Failed to open the file");
-        let mut reader = std::io::BufReader::new(&file);
+        // Read all the lines at once
+        // ? This probably needs to optimized to only read as much is needed
+        let reader = helpers::get_reader(&args.filename)?;
+        for line in reader.lines() {
+            self.lines.push(line?);
+        }
 
         // Prepare stdout by entering the Alternate Screen Buffer,
         // clearing the terminal and moving the cursor to the 0, 0 position
@@ -48,22 +54,9 @@ impl Pager {
             stdout.execute(terminal::Clear(terminal::ClearType::All))?;
             stdout.execute(cursor::MoveTo(0, 0))?;
 
-            // Since read_line will move the cursor each iteration, we need to seek back to the start
-            file.seek(std::io::SeekFrom::Start(0))?; // Go back to the start of the file
-            reader = std::io::BufReader::new(&file); // Reinitialize the BufReader
-
-            // Skip all lines till the start of the tracked scroll position
-            for _ in 0..self.scroll {
-                let mut dummy = String::new();
-                reader.read_line(&mut dummy)?;
-            }
             // Read a page's worth of lines and print them
-            for _ in 0..self.page_height {
-                let mut line = String::new();
-                if reader.read_line(&mut line)? == 0 {
-                    break;
-                }
-                print!("{}", line)
+            for line in &self.lines[self.scroll..(self.scroll + self.page_height)] {
+                println!("{}", line)
             }
 
             // Handle key events before continuing to loop
@@ -95,7 +88,7 @@ impl Pager {
     }
 
     /// Scroll by the given offset. Positive numbers scroll down, whereas, negative numbers scroll up.
-    fn scroll(&mut self, offset: i32) {
+    fn scroll(&mut self, offset: isize) {
         // TODO: Need to bound the scroll values between the first and the last line
         self.scroll = self.scroll.saturating_add_signed(offset);
     }
