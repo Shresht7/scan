@@ -74,10 +74,10 @@ impl Pager {
     /// Buffer lines from the reader as needed
     fn buffer_lines(&mut self, reader: &mut Box<dyn BufRead>) -> std::io::Result<()> {
         for line in reader.lines() {
+            self.lines.push(line?);
             if self.lines.len() >= self.scroll + self.page_height {
                 break;
             }
-            self.lines.push(line?);
         }
         Ok(())
     }
