@@ -2,7 +2,7 @@ use std::io::BufRead;
 
 use crossterm::{
     cursor,
-    event::{Event, KeyCode, KeyEventKind},
+    event::{Event, KeyCode, KeyEventKind, MouseEvent, MouseEventKind},
     terminal, ExecutableCommand,
 };
 
@@ -95,6 +95,11 @@ impl Pager {
                     _ => {}
                 }
             }
+            Event::Mouse(mouse_event) => match mouse_event.kind {
+                MouseEventKind::ScrollUp => self.scroll_up(1),
+                MouseEventKind::ScrollDown => self.scroll_down(1),
+                _ => {}
+            },
             _ => {}
         }
         Ok(())
