@@ -8,7 +8,7 @@ pub struct Args {
     pub filename: std::path::PathBuf,
 
     /// Pass the contents through without running the interactive Pager
-    #[clap(short, long)]
+    #[clap(short, long, aliases=["skip", "no-page"])]
     pub passthrough: bool,
 }
 
