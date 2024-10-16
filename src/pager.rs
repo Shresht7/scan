@@ -30,11 +30,6 @@ impl Pager {
 
     /// The main application logic of the pager
     pub fn run(&mut self, args: cli::Args) -> Result<(), Box<dyn std::error::Error>> {
-        // Check if there are arguments are all valid
-        if let Err(e) = self.validate_args(&args) {
-            return Err(e); // If not, return early with the error
-        }
-
         // Open the file and instantiate a BufReader
         let mut file = std::fs::File::open(&args.filename).expect("Failed to open the file");
         let mut reader = std::io::BufReader::new(&file);
@@ -107,19 +102,5 @@ impl Pager {
     /// Set the exit flag to indicate that we exit the program loop
     fn exit(&mut self) {
         self.exit = true;
-    }
-
-    /// Validate that all arguments are as they should be
-    fn validate_args(&self, args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
-        // Check if the file exists...
-        if !args.filename.exists() {
-            // And return early with an error if it doesn't
-            return Err(format!(
-                "The provided file does not exist: {}",
-                args.filename.to_string_lossy()
-            )
-            .into());
-        }
-        Ok(())
     }
 }
