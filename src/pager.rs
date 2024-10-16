@@ -87,6 +87,8 @@ impl Pager {
             // crossterm also emits key-release and repeat events on Windows.
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                 match key_event.code {
+                    KeyCode::Up | KeyCode::Char('k') => self.scroll(-1),
+                    KeyCode::Down | KeyCode::Char('j') => self.scroll(1),
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
                     _ => {}
                 }
@@ -94,6 +96,12 @@ impl Pager {
             _ => {}
         }
         Ok(())
+    }
+
+    /// Scroll by the given offset. Positive numbers scroll down, whereas, negative numbers scroll up.
+    fn scroll(&mut self, offset: i32) {
+        // TODO: Need to bound the scroll values between the first and the last line
+        self.scroll = self.scroll.saturating_add_signed(offset);
     }
 
     /// Set the exit flag to indicate that we exit the program loop
