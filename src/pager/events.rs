@@ -74,9 +74,16 @@ impl Pager {
         }
     }
 
-    // Scroll to the top
+    /// Scroll to the home position.
+    /// If there is no horizontal scroll, scrolls directly to the top of the file.
+    /// Otherwise, scroll back to the start of the line first.
+    /// Next invocation will bring it back to the top if there was no horizontal scroll.
     fn home(&mut self) {
-        self.view.scroll_row = 0;
+        if self.view.scroll_col > 0 {
+            self.view.scroll_col = 0
+        } else {
+            self.view.scroll_row = 0;
+        }
     }
 
     /// Resize the Pager view
