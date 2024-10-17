@@ -47,20 +47,16 @@ impl Pager {
     }
 
     /// The main application logic of the pager
-    pub fn run<T>(&mut self, mut reader: T) -> Result<(), Box<dyn std::error::Error>>
+    pub fn run<T>(
+        &mut self,
+        mut reader: T,
+        mut stdout: &mut std::io::Stdout,
+    ) -> Result<(), Box<dyn std::error::Error>>
     where
         T: std::io::BufRead,
     {
         // Buffer initial set of lines
         self.buffer_lines(&mut reader)?;
-
-        // Prepare stdout by entering the Alternate Screen Buffer,
-        // clearing the terminal and moving the cursor to the 0, 0 position
-        let mut stdout = std::io::stdout();
-        stdout.execute(terminal::EnterAlternateScreen)?;
-        stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-        stdout.execute(cursor::Hide)?;
-        stdout.execute(cursor::MoveTo(0, 0))?;
 
         // The main program loop. Break when the exit flag is set.
         while !self.exit {
@@ -76,10 +72,6 @@ impl Pager {
             // Determine if we need to render the view
             self.should_rerender();
         }
-
-        // Restore the terminal by exiting the Alternate Screen Buffer when we're done
-        stdout.execute(terminal::LeaveAlternateScreen)?;
-        stdout.execute(cursor::Show)?;
 
         Ok(())
     }

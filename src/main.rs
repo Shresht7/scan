@@ -1,7 +1,10 @@
 use clap::Parser;
 use crossterm::{
+    cursor,
     style::{style, Stylize},
+    terminal,
     tty::IsTty,
+    ExecutableCommand,
 };
 
 mod cli;
@@ -50,8 +53,33 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Set options
     pager.with_line_numbers(args.show_line_numbers);
 
+    // Setup the terminal before running the Pager application
+    setup(&mut stdout)?;
+
     // Run the Pager application
-    pager.run(reader)
+    pager.run(reader, &mut stdout)?;
+
+    // Cleanup the terminal when the Pager application exits
+    cleanup(&mut stdout)?;
+
+    Ok(())
+}
+
+/// Prepare stdout by entering the Alternate Screen Buffer,
+/// clearing the terminal and moving the cursor to the 0, 0 position
+fn setup(stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
+    stdout.execute(terminal::EnterAlternateScreen)?;
+    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+    stdout.execute(cursor::Hide)?;
+    stdout.execute(cursor::MoveTo(0, 0))?;
+    Ok(())
+}
+
+/// Restore the terminal by exiting the Alternate Screen Buffer when we're done
+fn cleanup(stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
+    stdout.execute(terminal::LeaveAlternateScreen)?;
+    stdout.execute(cursor::Show)?;
+    Ok(())
 }
 
 /// Prints the human friendly error message
