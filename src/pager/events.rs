@@ -33,14 +33,14 @@ impl Pager {
 
     /// Scroll up by the given number of lines
     fn scroll_up(&mut self, n: usize) {
-        if self.view_start() > 0 {
+        if self.view.start() > 0 {
             self.view.scroll_row = self.view.scroll_row.saturating_sub(n);
         }
     }
 
     /// Scroll down by the given number of lines
     fn scroll_down(&mut self, n: usize) {
-        if self.view_end() < self.lines.len() {
+        if self.view.end() < self.lines.len() {
             self.view.scroll_row = self.view.scroll_row.saturating_add(n);
         }
     }
@@ -57,7 +57,7 @@ impl Pager {
 
     /// Scroll up by one page
     fn page_up(&mut self) {
-        if self.view_start() > self.view.height {
+        if self.view.start() > self.view.height {
             self.view.scroll_row = self.view.scroll_row.saturating_sub(self.view.height - 1)
         } else {
             self.view.scroll_row = 0;
@@ -66,9 +66,9 @@ impl Pager {
 
     // Scroll down by one page
     fn page_down(&mut self) {
-        if self.view_end() + self.view.height < self.lines.len() {
+        if self.view.end() + self.view.height < self.lines.len() {
             self.view.scroll_row = self.view.scroll_row.saturating_add(self.view.height - 1)
-        } else if self.view_start() + self.view.height < self.lines.len() {
+        } else if self.view.start() + self.view.height < self.lines.len() {
             self.view.scroll_row = self.lines.len() - self.view.height;
         }
     }

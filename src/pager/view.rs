@@ -21,4 +21,14 @@ impl View {
             width: size.0 as usize,
         }
     }
+
+    /// The start of the viewport. Index of the first visible line
+    pub fn start(&self) -> usize {
+        self.scroll_row
+    }
+
+    /// The end of the viewport. Index of the last visible line
+    pub fn end(&self) -> usize {
+        self.scroll_row + self.height - 1
+    }
 }

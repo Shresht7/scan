@@ -84,7 +84,7 @@ impl Pager {
         stdout.execute(cursor::MoveTo(0, 0))?;
 
         // Iterate over the lines in the viewport ...
-        for l in &self.lines[self.view_start()..self.view_end()] {
+        for l in &self.lines[self.view.start()..self.view.end()] {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
 
@@ -118,7 +118,7 @@ impl Pager {
         for line in reader.lines() {
             self.lines.push(line?);
             // Read up to the viewport's end + one more page
-            if self.lines.len() > self.view_end() + self.view.height {
+            if self.lines.len() > self.view.end() + self.view.height {
                 break;
             }
         }
@@ -141,16 +141,6 @@ impl Pager {
             return self.rerender = true;
         }
         return self.rerender = false;
-    }
-
-    /// The start of the viewport. Index of the first visible line
-    fn view_start(&self) -> usize {
-        self.view.scroll_row
-    }
-
-    /// The end of the viewport. Index of the last visible line
-    fn view_end(&self) -> usize {
-        self.view.scroll_row + self.view.height - 1
     }
 
     /// Set the exit flag to indicate that we need to exit the program
