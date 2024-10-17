@@ -57,6 +57,12 @@ impl Pager {
         self
     }
 
+    /// Set the read_all option
+    pub fn all(&mut self, yes: bool) -> &mut Self {
+        self.read_all = yes;
+        self
+    }
+
     /// The main application logic of the pager
     pub fn run<T>(
         &mut self,

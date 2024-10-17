@@ -48,7 +48,9 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     let mut pager = pager::Pager::init(size);
 
     // Set options
-    pager.with_line_numbers(args.show_line_numbers);
+    pager
+        .with_line_numbers(args.show_line_numbers)
+        .all(args.all);
 
     // Set scroll offsets
     if let Some(file) = &args.file {

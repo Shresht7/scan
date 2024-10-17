@@ -15,4 +15,8 @@ pub struct Args {
     /// Pass the contents through without running the interactive Pager
     #[clap(short, long, aliases=["skip", "no-page"])]
     pub passthrough: bool,
+
+    /// Read the entire file in one go
+    #[clap(short, long)]
+    pub all: bool,
 }
