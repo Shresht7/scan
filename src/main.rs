@@ -37,10 +37,10 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Get the terminal width and height from crossterm
-    let (_, height) = crossterm::terminal::size()?;
+    let size = crossterm::terminal::size()?;
 
     // Initialize the Pager application
-    let mut pager = pager::Pager::init(height as usize);
+    let mut pager = pager::Pager::init(size);
 
     // Run the Pager application
     pager.run(args)

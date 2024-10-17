@@ -12,8 +12,12 @@ pub struct Pager {
 
     /// The index of the first-line to display in the viewport
     scroll_row: usize,
+    /// The index of the first-column to display in the viewport
+    scroll_col: usize,
     /// The max height of the page in the terminal
     height: usize,
+    /// The max width of the page in the terminal
+    width: usize,
 
     /// If true, exit the program
     exit: bool,
@@ -21,11 +25,13 @@ pub struct Pager {
 
 impl Pager {
     /// Instantiate the Pager application
-    pub fn init(height: usize) -> Pager {
+    pub fn init(size: (u16, u16)) -> Pager {
         Self {
             lines: Vec::new(),
             scroll_row: 0,
-            height,
+            scroll_col: 0,
+            height: size.1 as usize,
+            width: size.0 as usize,
             exit: false,
         }
     }
