@@ -50,6 +50,11 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Set options
     pager.with_line_numbers(args.show_line_numbers);
 
+    // Set scroll offsets
+    if let Some(file) = &args.filename {
+        pager.with_offset(file.row, file.col);
+    }
+
     // Setup the terminal before running the Pager application
     setup(&mut stdout)?;
 

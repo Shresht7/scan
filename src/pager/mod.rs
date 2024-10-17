@@ -50,6 +50,13 @@ impl Pager {
         self
     }
 
+    /// Set the starting scroll offsets
+    pub fn with_offset(&mut self, row: Option<usize>, col: Option<usize>) -> &mut Self {
+        self.view.scroll_row = row.unwrap_or(0).saturating_sub(1);
+        self.view.scroll_col = col.unwrap_or(0).saturating_sub(1);
+        self
+    }
+
     /// The main application logic of the pager
     pub fn run<T>(
         &mut self,

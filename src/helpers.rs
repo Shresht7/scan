@@ -3,8 +3,8 @@ use std::str::FromStr;
 #[derive(Clone)]
 pub struct File {
     filename: String,
-    row: usize,
-    col: usize,
+    pub row: Option<usize>,
+    pub col: Option<usize>,
 }
 
 impl FromStr for File {
@@ -13,8 +13,8 @@ impl FromStr for File {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut iter = s.split(":");
         let filename = iter.next().unwrap_or(s).to_string();
-        let row = iter.next().unwrap_or("0").parse().unwrap_or(0);
-        let col = iter.next().unwrap_or("0").parse().unwrap_or(0);
+        let row = iter.next().and_then(|s| s.parse::<usize>().ok());
+        let col = iter.next().and_then(|s| s.parse::<usize>().ok());
         Ok(Self { filename, row, col })
     }
 }
