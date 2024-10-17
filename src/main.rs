@@ -31,7 +31,7 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     let mut stdout = std::io::stdout();
 
     // Get a reference to the reader
-    let mut reader = helpers::get_reader(&args.filename)?;
+    let mut reader = helpers::get_reader(&args.file)?;
 
     // Determine if we are in passthrough mode.
     // If the `passthrough` flag is set, or the terminal is not interactive...
@@ -51,7 +51,7 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     pager.with_line_numbers(args.show_line_numbers);
 
     // Set scroll offsets
-    if let Some(file) = &args.filename {
+    if let Some(file) = &args.file {
         pager.with_offset(file.row, file.col);
     }
 

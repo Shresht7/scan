@@ -6,7 +6,7 @@ use crate::helpers::File;
 #[command(version, about)]
 pub struct Args {
     /// The file to view. If nothing is specified, use input from STDIN
-    pub filename: Option<File>,
+    pub file: Option<File>,
 
     /// Show line numbers
     #[clap(short, long, aliases=["line-numbers"])]
