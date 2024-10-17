@@ -25,6 +25,7 @@ impl Pager {
                 MouseEventKind::ScrollDown => self.scroll_down(1),
                 _ => {}
             },
+            Event::Resize(w, h) => self.resize(w, h),
             _ => {}
         }
         Ok(())
@@ -70,5 +71,11 @@ impl Pager {
         } else if self.view_start() + self.height < self.lines.len() {
             self.scroll_row = self.lines.len() - self.height;
         }
+    }
+
+    /// Resize the Pager view
+    fn resize(&mut self, w: u16, h: u16) {
+        self.width = w as usize;
+        self.height = h as usize;
     }
 }
