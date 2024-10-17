@@ -27,9 +27,6 @@ fn main() {
 
 /// Run the main logic of the application
 fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
-    // Validate the command-line arguments
-    args.validate()?;
-
     // Get a reference to STDOUT
     let mut stdout = std::io::stdout();
 
