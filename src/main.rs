@@ -56,8 +56,8 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
 
 /// Prints the human friendly error message
 fn print_error(e: Box<dyn std::error::Error>) {
-    let message = format!("Error: {}", e);
+    let message = style(format!("Error: {e}")).red();
     if std::io::stderr().is_tty() {
-        eprintln!("{}", style(message).red())
+        eprintln!("{message}")
     }
 }

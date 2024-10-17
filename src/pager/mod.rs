@@ -114,14 +114,14 @@ impl Pager {
                 let line_number = format!("{:>3}", self.view.start() + i + 1);
                 let line_number = style(line_number).dark_grey();
                 let divider = style("│").dark_grey();
-                line = format!("{} {} {}", line_number, divider, line);
+                line = format!("{line_number} {divider} {line}");
             }
 
             // Truncate the line to fit in the page width
             line.truncate(self.view.width);
 
             // Print out the formatted line
-            println!("{}", line);
+            println!("{line}");
         }
 
         // Reset the rerender flag after rendering
