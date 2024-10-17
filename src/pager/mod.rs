@@ -1,8 +1,4 @@
-use std::io::BufRead;
-
 use crossterm::{cursor, terminal, ExecutableCommand};
-
-use crate::{cli, helpers};
 
 mod events;
 mod view;
@@ -37,10 +33,10 @@ impl Pager {
     }
 
     /// The main application logic of the pager
-    pub fn run(&mut self, args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
-        // Read all the lines at once
-        let mut reader = helpers::get_reader(&args.filename)?;
-
+    pub fn run<T>(&mut self, mut reader: T) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: std::io::BufRead,
+    {
         // Buffer initial set of lines
         self.buffer_lines(&mut reader)?;
 
@@ -114,7 +110,10 @@ impl Pager {
     // ----------------
 
     /// Buffer lines from the reader as needed
-    fn buffer_lines(&mut self, reader: &mut Box<dyn BufRead>) -> std::io::Result<()> {
+    fn buffer_lines<T>(&mut self, reader: T) -> std::io::Result<()>
+    where
+        T: std::io::BufRead,
+    {
         for line in reader.lines() {
             self.lines.push(line?);
             // Read up to the viewport's end + one more page

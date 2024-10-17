@@ -27,12 +27,14 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Get a reference to STDOUT
     let mut stdout = std::io::stdout();
 
+    // Get a reference to the reader
+    let mut reader = helpers::get_reader(&args.filename)?;
+
     // Determine if we are in passthrough mode.
     // If the `passthrough` flag is set, or the terminal is not interactive...
     // we simply pipe the output through
     if args.passthrough || !stdout.is_tty() {
-        let mut input = helpers::get_reader(&args.filename)?;
-        std::io::copy(&mut input, &mut stdout)?;
+        std::io::copy(&mut reader, &mut stdout)?;
         return Ok(());
     }
 
@@ -43,5 +45,5 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     let mut pager = pager::Pager::init(size);
 
     // Run the Pager application
-    pager.run(args)
+    pager.run(reader)
 }
