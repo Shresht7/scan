@@ -73,8 +73,8 @@ impl Pager {
     fn page_down(&mut self) {
         if self.view.end() + self.view.height < self.lines.len() {
             self.view.scroll_row = self.view.scroll_row.saturating_add(self.view.height - 1)
-        } else if self.view.start() + self.view.height < self.lines.len() {
-            self.view.scroll_row = self.lines.len() - self.view.height;
+        } else if self.view.end() < self.lines.len() {
+            self.view.scroll_row = self.lines.len() - self.view.height + 1;
         }
     }
 
