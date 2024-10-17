@@ -5,17 +5,18 @@ use crossterm::{cursor, terminal, ExecutableCommand};
 use crate::{cli, helpers};
 
 mod events;
+mod view;
 
 pub struct Pager {
     /// The collection of buffered lines
     lines: Vec<String>,
 
     /// The current Pager's view
-    view: View,
+    view: view::View,
 
     /// Stores a snapshot of the previously rendered view.
     /// Contains scroll_row, scroll_col, height, width values
-    last_frame: View,
+    last_frame: view::View,
     /// Should rerender the view
     rerender: bool,
 
@@ -23,35 +24,13 @@ pub struct Pager {
     exit: bool,
 }
 
-struct View {
-    /// The index of the first-line to display in the viewport
-    scroll_row: usize,
-    /// The index of the first-column to display in the viewport
-    scroll_col: usize,
-    /// The max height of the page in the terminal
-    height: usize,
-    /// The max width of the page in the terminal
-    width: usize,
-}
-
-impl View {
-    fn new(scroll_row: usize, scroll_col: usize, size: (u16, u16)) -> Self {
-        Self {
-            scroll_row,
-            scroll_col,
-            height: size.1 as usize,
-            width: size.0 as usize,
-        }
-    }
-}
-
 impl Pager {
     /// Instantiate the Pager application
     pub fn init(size: (u16, u16)) -> Pager {
         Self {
             lines: Vec::new(),
-            view: View::new(0, 0, size),
-            last_frame: View::new(0, 0, size),
+            view: view::View::new(0, 0, size),
+            last_frame: view::View::new(0, 0, size),
             rerender: true,
             exit: false,
         }
@@ -125,7 +104,7 @@ impl Pager {
         }
 
         // Reset the rerender flag after rendering
-        self.last_frame = View::new(
+        self.last_frame = view::View::new(
             self.view.scroll_row,
             self.view.scroll_col,
             (self.view.width as u16, self.view.height as u16),
