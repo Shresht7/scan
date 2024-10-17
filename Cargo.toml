@@ -2,7 +2,7 @@
 name = "pager"
 description = "A simple pager command-line application"
 version = "0.1.0"
-author = "Shresh7"
+authors = ["Shresh7"]
 repository = "https://github.com/Shresh7/pager"
 license = "MIT"
 edition = "2021"
