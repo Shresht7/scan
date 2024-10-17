@@ -19,8 +19,32 @@ pub struct Pager {
     /// The max width of the page in the terminal
     width: usize,
 
+    /// Stores a snapshot of the previously rendered view.
+    /// Contains scroll_row, scroll_col, height, width values
+    last_frame: View,
+    /// Should rerender the view
+    rerender: bool,
+
     /// If true, exit the program
     exit: bool,
+}
+
+struct View {
+    scroll_row: usize,
+    scroll_col: usize,
+    height: usize,
+    width: usize,
+}
+
+impl View {
+    fn new(scroll_row: usize, scroll_col: usize, size: (u16, u16)) -> Self {
+        Self {
+            scroll_row,
+            scroll_col,
+            height: size.1 as usize,
+            width: size.0 as usize,
+        }
+    }
 }
 
 impl Pager {
@@ -32,6 +56,8 @@ impl Pager {
             scroll_col: 0,
             height: size.1 as usize,
             width: size.0 as usize,
+            last_frame: View::new(0, 0, size),
+            rerender: true,
             exit: false,
         }
     }
@@ -61,6 +87,9 @@ impl Pager {
 
             // Handle key events before continuing to loop
             self.handle_events()?;
+
+            // Determine if we need to render the view
+            self.should_rerender();
         }
 
         // Restore the terminal by exiting the Alternate Screen Buffer when we're done
@@ -70,7 +99,12 @@ impl Pager {
     }
 
     /// Render the Pager's view
-    fn render(&self, stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
+    fn render(&mut self, stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
+        // Skip rendering if self.rerender is set to false
+        if !self.rerender {
+            return Ok(());
+        }
+
         // Clear the screen and move the cursor to the top
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
         stdout.execute(cursor::MoveTo(0, 0))?;
@@ -95,8 +129,19 @@ impl Pager {
             println!("{}", line);
         }
 
+        // Reset the rerender flag after rendering
+        self.last_frame = View::new(
+            self.scroll_row,
+            self.scroll_col,
+            (self.width as u16, self.height as u16),
+        );
+        self.rerender = false;
+
         Ok(())
     }
+
+    // HELPER FUNCTIONS
+    // ----------------
 
     /// Buffer lines from the reader as needed
     fn buffer_lines(&mut self, reader: &mut Box<dyn BufRead>) -> std::io::Result<()> {
@@ -110,8 +155,23 @@ impl Pager {
         Ok(())
     }
 
-    // HELPER FUNCTIONS
-    // ----------------
+    /// Determines if we need to rerender the view
+    fn should_rerender(&mut self) {
+        let prev = &self.last_frame;
+        if self.scroll_row != prev.scroll_row {
+            return self.rerender = true;
+        }
+        if self.scroll_col != prev.scroll_col {
+            return self.rerender = true;
+        }
+        if self.height != prev.height {
+            return self.rerender = true;
+        }
+        if self.width != prev.width {
+            return self.rerender = true;
+        }
+        return self.rerender = false;
+    }
 
     /// The start of the viewport. Index of the first visible line
     fn view_start(&self) -> usize {
