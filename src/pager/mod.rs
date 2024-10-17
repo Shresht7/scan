@@ -53,17 +53,11 @@ impl Pager {
 
         // The main program loop. Break when the exit flag is set.
         while !self.exit {
-            // Clear the screen and move the cursor to the top
-            stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-            stdout.execute(cursor::MoveTo(0, 0))?;
-
             // Buffer more lines as needed based on the self.scroll and self.page_height variables
             self.buffer_lines(&mut reader)?;
 
-            // Read a page's worth of lines and print them
-            for line in &self.lines[self.view_start()..self.view_end()] {
-                println!("{}", line)
-            }
+            // Render the pager's view
+            self.render(&mut stdout)?;
 
             // Handle key events before continuing to loop
             self.handle_events()?;
@@ -71,6 +65,35 @@ impl Pager {
 
         // Restore the terminal by exiting the Alternate Screen Buffer when we're done
         stdout.execute(terminal::LeaveAlternateScreen)?;
+
+        Ok(())
+    }
+
+    /// Render the Pager's view
+    fn render(&self, stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
+        // Clear the screen and move the cursor to the top
+        stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+        stdout.execute(cursor::MoveTo(0, 0))?;
+
+        // Iterate over the lines in the viewport ...
+        for l in &self.lines[self.view_start()..self.view_end()] {
+            // The final formatted line to be printed to the terminal
+            let mut line = String::from(l);
+
+            // Clip the string for horizontal scroll
+            if self.scroll_col > 0 {
+                line = match l.split_at_checked(self.scroll_col) {
+                    Some((_, x)) => String::from(x),
+                    None => String::new(),
+                }
+            }
+
+            // Truncate the line to fit in the page width
+            line.truncate(self.width);
+
+            // Print out the formatted line
+            println!("{}", line);
+        }
 
         Ok(())
     }
