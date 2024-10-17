@@ -94,10 +94,9 @@ impl Pager {
         stdout.execute(cursor::MoveTo(0, 0))?;
 
         // Iterate over the lines in the viewport ...
-        for (i, l) in self.lines[self.view.start()..self.view.end()]
-            .iter()
-            .enumerate()
-        {
+        let start = self.view.start();
+        let end = std::cmp::min(self.view.end(), self.lines.len());
+        for (i, l) in self.lines[start..end].iter().enumerate() {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
 
