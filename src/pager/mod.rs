@@ -11,9 +11,9 @@ pub struct Pager {
     lines: Vec<String>,
 
     /// The index of the first-line to display in the viewport
-    scroll_offset: usize,
+    scroll_row: usize,
     /// The max height of the page in the terminal
-    page_height: usize,
+    height: usize,
 
     /// If true, exit the program
     exit: bool,
@@ -24,8 +24,8 @@ impl Pager {
     pub fn init(height: usize) -> Pager {
         Self {
             lines: Vec::new(),
-            scroll_offset: 0,
-            page_height: height,
+            scroll_row: 0,
+            height,
             exit: false,
         }
     }
@@ -74,7 +74,7 @@ impl Pager {
         for line in reader.lines() {
             self.lines.push(line?);
             // Read up to the viewport's end + one more page
-            if self.lines.len() > self.view_end() + self.page_height {
+            if self.lines.len() > self.view_end() + self.height {
                 break;
             }
         }
@@ -86,12 +86,12 @@ impl Pager {
 
     /// The start of the viewport. Index of the first visible line
     fn view_start(&self) -> usize {
-        self.scroll_offset
+        self.scroll_row
     }
 
     /// The end of the viewport. Index of the last visible line
     fn view_end(&self) -> usize {
-        self.scroll_offset + self.page_height - 1
+        self.scroll_row + self.height - 1
     }
 
     /// Set the exit flag to indicate that we need to exit the program

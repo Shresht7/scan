@@ -31,32 +31,32 @@ impl Pager {
     /// Scroll up by the given number of lines
     fn scroll_up(&mut self, n: usize) {
         if self.view_start() > 0 {
-            self.scroll_offset = self.scroll_offset.saturating_sub(n);
+            self.scroll_row = self.scroll_row.saturating_sub(n);
         }
     }
 
     /// Scroll down by the given number of lines
     fn scroll_down(&mut self, n: usize) {
         if self.view_end() < self.lines.len() {
-            self.scroll_offset = self.scroll_offset.saturating_add(n);
+            self.scroll_row = self.scroll_row.saturating_add(n);
         }
     }
 
     /// Scroll up by one page
     fn page_up(&mut self) {
-        if self.view_start() > self.page_height {
-            self.scroll_offset = self.scroll_offset.saturating_sub(self.page_height - 1)
+        if self.view_start() > self.height {
+            self.scroll_row = self.scroll_row.saturating_sub(self.height - 1)
         } else {
-            self.scroll_offset = 0;
+            self.scroll_row = 0;
         }
     }
 
     // Scroll down by one page
     fn page_down(&mut self) {
-        if self.view_end() + self.page_height < self.lines.len() {
-            self.scroll_offset = self.scroll_offset.saturating_add(self.page_height - 1)
-        } else if self.view_start() + self.page_height < self.lines.len() {
-            self.scroll_offset = self.lines.len() - self.page_height;
+        if self.view_end() + self.height < self.lines.len() {
+            self.scroll_row = self.scroll_row.saturating_add(self.height - 1)
+        } else if self.view_start() + self.height < self.lines.len() {
+            self.scroll_row = self.lines.len() - self.height;
         }
     }
 }
