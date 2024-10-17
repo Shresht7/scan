@@ -59,6 +59,7 @@ impl Pager {
         let mut stdout = std::io::stdout();
         stdout.execute(terminal::EnterAlternateScreen)?;
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
+        stdout.execute(cursor::Hide)?;
         stdout.execute(cursor::MoveTo(0, 0))?;
 
         // The main program loop. Break when the exit flag is set.
@@ -78,6 +79,7 @@ impl Pager {
 
         // Restore the terminal by exiting the Alternate Screen Buffer when we're done
         stdout.execute(terminal::LeaveAlternateScreen)?;
+        stdout.execute(cursor::Show)?;
 
         Ok(())
     }
