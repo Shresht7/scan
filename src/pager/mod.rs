@@ -127,18 +127,9 @@ impl Pager {
 
     /// Determines if we need to rerender the view
     fn should_rerender(&mut self) {
-        let prev = &self.last_frame;
-        if self.view.scroll_row != prev.scroll_row {
-            return self.rerender = true;
-        }
-        if self.view.scroll_col != prev.scroll_col {
-            return self.rerender = true;
-        }
-        if self.view.height != prev.height {
-            return self.rerender = true;
-        }
-        if self.view.width != prev.width {
-            return self.rerender = true;
+        // If the current frame is different from the last...
+        if self.view != self.last_frame {
+            return self.rerender = true; // Rerender
         }
         return self.rerender = false;
     }
