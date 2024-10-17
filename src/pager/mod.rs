@@ -15,8 +15,8 @@ pub struct Pager {
     view: view::View,
 
     /// Stores a snapshot of the previously rendered view.
-    /// Contains scroll_row, scroll_col, height, width values
     last_frame: view::View,
+
     /// Should rerender the view
     rerender: bool,
 
