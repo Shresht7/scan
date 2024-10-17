@@ -104,11 +104,7 @@ impl Pager {
         }
 
         // Reset the rerender flag after rendering
-        self.last_frame = view::View::new(
-            self.view.scroll_row,
-            self.view.scroll_col,
-            (self.view.width as u16, self.view.height as u16),
-        );
+        self.last_frame = self.view.clone();
         self.rerender = false;
 
         Ok(())

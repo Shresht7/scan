@@ -1,4 +1,5 @@
 /// Represents a viewport
+#[derive(Clone)]
 pub struct View {
     /// The index of the first-line to display in the viewport
     pub scroll_row: usize,
