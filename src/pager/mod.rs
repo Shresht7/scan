@@ -10,14 +10,8 @@ pub struct Pager {
     /// The collection of buffered lines
     lines: Vec<String>,
 
-    /// The index of the first-line to display in the viewport
-    scroll_row: usize,
-    /// The index of the first-column to display in the viewport
-    scroll_col: usize,
-    /// The max height of the page in the terminal
-    height: usize,
-    /// The max width of the page in the terminal
-    width: usize,
+    /// The current Pager's view
+    view: View,
 
     /// Stores a snapshot of the previously rendered view.
     /// Contains scroll_row, scroll_col, height, width values
@@ -30,9 +24,13 @@ pub struct Pager {
 }
 
 struct View {
+    /// The index of the first-line to display in the viewport
     scroll_row: usize,
+    /// The index of the first-column to display in the viewport
     scroll_col: usize,
+    /// The max height of the page in the terminal
     height: usize,
+    /// The max width of the page in the terminal
     width: usize,
 }
 
@@ -52,10 +50,7 @@ impl Pager {
     pub fn init(size: (u16, u16)) -> Pager {
         Self {
             lines: Vec::new(),
-            scroll_row: 0,
-            scroll_col: 0,
-            height: size.1 as usize,
-            width: size.0 as usize,
+            view: View::new(0, 0, size),
             last_frame: View::new(0, 0, size),
             rerender: true,
             exit: false,
@@ -115,15 +110,15 @@ impl Pager {
             let mut line = String::from(l);
 
             // Clip the string for horizontal scroll
-            if self.scroll_col > 0 {
-                line = match l.split_at_checked(self.scroll_col) {
+            if self.view.scroll_col > 0 {
+                line = match l.split_at_checked(self.view.scroll_col) {
                     Some((_, x)) => String::from(x),
                     None => String::new(),
                 }
             }
 
             // Truncate the line to fit in the page width
-            line.truncate(self.width);
+            line.truncate(self.view.width);
 
             // Print out the formatted line
             println!("{}", line);
@@ -131,9 +126,9 @@ impl Pager {
 
         // Reset the rerender flag after rendering
         self.last_frame = View::new(
-            self.scroll_row,
-            self.scroll_col,
-            (self.width as u16, self.height as u16),
+            self.view.scroll_row,
+            self.view.scroll_col,
+            (self.view.width as u16, self.view.height as u16),
         );
         self.rerender = false;
 
@@ -148,7 +143,7 @@ impl Pager {
         for line in reader.lines() {
             self.lines.push(line?);
             // Read up to the viewport's end + one more page
-            if self.lines.len() > self.view_end() + self.height {
+            if self.lines.len() > self.view_end() + self.view.height {
                 break;
             }
         }
@@ -158,16 +153,16 @@ impl Pager {
     /// Determines if we need to rerender the view
     fn should_rerender(&mut self) {
         let prev = &self.last_frame;
-        if self.scroll_row != prev.scroll_row {
+        if self.view.scroll_row != prev.scroll_row {
             return self.rerender = true;
         }
-        if self.scroll_col != prev.scroll_col {
+        if self.view.scroll_col != prev.scroll_col {
             return self.rerender = true;
         }
-        if self.height != prev.height {
+        if self.view.height != prev.height {
             return self.rerender = true;
         }
-        if self.width != prev.width {
+        if self.view.width != prev.width {
             return self.rerender = true;
         }
         return self.rerender = false;
@@ -175,12 +170,12 @@ impl Pager {
 
     /// The start of the viewport. Index of the first visible line
     fn view_start(&self) -> usize {
-        self.scroll_row
+        self.view.scroll_row
     }
 
     /// The end of the viewport. Index of the last visible line
     fn view_end(&self) -> usize {
-        self.scroll_row + self.height - 1
+        self.view.scroll_row + self.view.height - 1
     }
 
     /// Set the exit flag to indicate that we need to exit the program

@@ -34,48 +34,48 @@ impl Pager {
     /// Scroll up by the given number of lines
     fn scroll_up(&mut self, n: usize) {
         if self.view_start() > 0 {
-            self.scroll_row = self.scroll_row.saturating_sub(n);
+            self.view.scroll_row = self.view.scroll_row.saturating_sub(n);
         }
     }
 
     /// Scroll down by the given number of lines
     fn scroll_down(&mut self, n: usize) {
         if self.view_end() < self.lines.len() {
-            self.scroll_row = self.scroll_row.saturating_add(n);
+            self.view.scroll_row = self.view.scroll_row.saturating_add(n);
         }
     }
 
     /// Scroll left horizontally by the given number of columns
     fn scroll_left(&mut self, n: usize) {
-        self.scroll_col = self.scroll_col.saturating_sub(n);
+        self.view.scroll_col = self.view.scroll_col.saturating_sub(n);
     }
 
     /// Scroll right horizontally by the given number of columns
     fn scroll_right(&mut self, n: usize) {
-        self.scroll_col = self.scroll_col.saturating_add(n);
+        self.view.scroll_col = self.view.scroll_col.saturating_add(n);
     }
 
     /// Scroll up by one page
     fn page_up(&mut self) {
-        if self.view_start() > self.height {
-            self.scroll_row = self.scroll_row.saturating_sub(self.height - 1)
+        if self.view_start() > self.view.height {
+            self.view.scroll_row = self.view.scroll_row.saturating_sub(self.view.height - 1)
         } else {
-            self.scroll_row = 0;
+            self.view.scroll_row = 0;
         }
     }
 
     // Scroll down by one page
     fn page_down(&mut self) {
-        if self.view_end() + self.height < self.lines.len() {
-            self.scroll_row = self.scroll_row.saturating_add(self.height - 1)
-        } else if self.view_start() + self.height < self.lines.len() {
-            self.scroll_row = self.lines.len() - self.height;
+        if self.view_end() + self.view.height < self.lines.len() {
+            self.view.scroll_row = self.view.scroll_row.saturating_add(self.view.height - 1)
+        } else if self.view_start() + self.view.height < self.lines.len() {
+            self.view.scroll_row = self.lines.len() - self.view.height;
         }
     }
 
     /// Resize the Pager view
     fn resize(&mut self, w: u16, h: u16) {
-        self.width = w as usize;
-        self.height = h as usize;
+        self.view.width = w as usize;
+        self.view.height = h as usize;
     }
 }
