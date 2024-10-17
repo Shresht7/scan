@@ -20,6 +20,9 @@ pub struct Pager {
     /// Should show line numbers
     show_line_numbers: bool,
 
+    // Should read the entire file in one go
+    read_all: bool,
+
     /// Should rerender the view
     rerender: bool,
 
@@ -35,6 +38,7 @@ impl Pager {
             view: view::View::new(0, 0, size),
             last_frame: view::View::new(0, 0, size),
             show_line_numbers: false,
+            read_all: false,
             rerender: true,
             exit: false,
         }
@@ -67,7 +71,7 @@ impl Pager {
             self.render(&mut stdout)?;
 
             // Handle key events before continuing to loop
-            self.handle_events()?;
+            self.handle_events(&mut reader)?;
 
             // Determine if we need to render the view
             self.should_rerender();
@@ -134,9 +138,11 @@ impl Pager {
     {
         for line in reader.lines() {
             self.lines.push(line?);
-            // Read up to the viewport's end + one more page
-            if self.lines.len() > self.view.end() + self.view.height {
-                break;
+            // Read only up to the viewport's end + one more page unless the self.read_all flag is set
+            if !self.read_all {
+                if self.lines.len() > self.view.end() + self.view.height {
+                    break;
+                }
             }
         }
         Ok(())
