@@ -1,6 +1,6 @@
 # `pager`
 
-A simple pager command-line application.
+A simple pager command-line application. Like `more` or `less`.
 
 ## 📘 Usage
 
