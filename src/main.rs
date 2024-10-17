@@ -72,6 +72,16 @@ fn setup(stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>>
     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
     stdout.execute(cursor::Hide)?;
     stdout.execute(cursor::MoveTo(0, 0))?;
+
+    // Create a custom hook to handle graceful cleanup of the terminal when panicking
+    let original_panic = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        let mut stdout = std::io::stdout();
+        // Intentionally ignore errors here since we're already in a panic!
+        let _ = cleanup(&mut stdout);
+        original_panic(info);
+    }));
+
     Ok(())
 }
 
