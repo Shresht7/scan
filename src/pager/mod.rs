@@ -1,4 +1,8 @@
-use crossterm::{cursor, terminal, ExecutableCommand};
+use crossterm::{
+    cursor,
+    style::{style, Stylize},
+    terminal, ExecutableCommand,
+};
 
 mod events;
 mod view;
@@ -107,9 +111,10 @@ impl Pager {
 
             // Prepend line numbers if the option was set
             if self.show_line_numbers {
-                let line_number = self.view.start() + i + 1;
-                let divider = "│";
-                line = format!("{:>3} {} {}", line_number, divider, line);
+                let line_number = format!("{:>3}", self.view.start() + i + 1);
+                let line_number = style(line_number).dark_grey();
+                let divider = style("│").dark_grey();
+                line = format!("{} {} {}", line_number, divider, line);
             }
 
             // Truncate the line to fit in the page width
