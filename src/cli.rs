@@ -1,7 +1,7 @@
 use clap::Parser;
 
-/// The command-line arguments
 #[derive(Parser)]
+#[command(version, about)]
 pub struct Args {
     /// The file to view
     pub filename: Option<std::path::PathBuf>,
