@@ -16,6 +16,7 @@ impl Pager {
                     KeyCode::Right | KeyCode::Char('l') => self.scroll_right(1),
                     KeyCode::PageUp => self.page_up(),
                     KeyCode::PageDown => self.page_down(),
+                    KeyCode::Home => self.home(),
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
                     _ => {}
                 }
@@ -71,6 +72,11 @@ impl Pager {
         } else if self.view.start() + self.view.height < self.lines.len() {
             self.view.scroll_row = self.lines.len() - self.view.height;
         }
+    }
+
+    // Scroll to the top
+    fn home(&mut self) {
+        self.view.scroll_row = 0;
     }
 
     /// Resize the Pager view
