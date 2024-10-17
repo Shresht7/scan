@@ -3,7 +3,7 @@ use clap::Parser;
 #[derive(Parser)]
 #[command(version, about)]
 pub struct Args {
-    /// The file to view
+    /// The file to view. If nothing is specified, use input from STDIN
     pub filename: Option<std::path::PathBuf>,
 
     /// Pass the contents through without running the interactive Pager
