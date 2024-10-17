@@ -1,5 +1,8 @@
 use clap::Parser;
-use crossterm::tty::IsTty;
+use crossterm::{
+    style::{style, Stylize},
+    tty::IsTty,
+};
 
 mod cli;
 mod helpers;
@@ -12,7 +15,7 @@ fn main() {
     // Run the main logic with the given command-line arguments
     match run(&args) {
         Err(e) => {
-            eprintln!("Error: {}", e);
+            print_error(e);
             std::process::exit(1)
         }
         Ok(_) => std::process::exit(0),
@@ -46,4 +49,12 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
 
     // Run the Pager application
     pager.run(reader)
+}
+
+/// Prints the human friendly error message
+fn print_error(e: Box<dyn std::error::Error>) {
+    let message = format!("Error: {}", e);
+    if std::io::stderr().is_tty() {
+        eprintln!("{}", style(message).red())
+    }
 }
