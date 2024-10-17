@@ -13,6 +13,9 @@ pub struct Pager {
     /// Stores a snapshot of the previously rendered view.
     last_frame: view::View,
 
+    /// Should show line numbers
+    show_line_numbers: bool,
+
     /// Should rerender the view
     rerender: bool,
 
@@ -27,9 +30,16 @@ impl Pager {
             lines: Vec::new(),
             view: view::View::new(0, 0, size),
             last_frame: view::View::new(0, 0, size),
+            show_line_numbers: false,
             rerender: true,
             exit: false,
         }
+    }
+
+    /// Enable/Disable line numbers
+    pub fn with_line_numbers(&mut self, b: bool) -> &mut Self {
+        self.show_line_numbers = b;
+        self
     }
 
     /// The main application logic of the pager
@@ -80,7 +90,10 @@ impl Pager {
         stdout.execute(cursor::MoveTo(0, 0))?;
 
         // Iterate over the lines in the viewport ...
-        for l in &self.lines[self.view.start()..self.view.end()] {
+        for (i, l) in self.lines[self.view.start()..self.view.end()]
+            .iter()
+            .enumerate()
+        {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
 
@@ -90,6 +103,11 @@ impl Pager {
                     Some((_, x)) => String::from(x),
                     None => String::new(),
                 }
+            }
+
+            // Prepend line numbers if the option was set
+            if self.show_line_numbers {
+                line = format!("{:>3} | {}", self.view.start() + i + 1, line);
             }
 
             // Truncate the line to fit in the page width

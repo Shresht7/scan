@@ -47,6 +47,9 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the Pager application
     let mut pager = pager::Pager::init(size);
 
+    // Set options
+    pager.with_line_numbers(args.show_line_numbers);
+
     // Run the Pager application
     pager.run(reader)
 }
