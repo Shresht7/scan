@@ -4,7 +4,10 @@ use super::Pager;
 
 impl Pager {
     /// Handle crossterm events like key-presses
-    pub fn handle_events(&mut self) -> std::io::Result<()> {
+    pub fn handle_events<T>(&mut self, reader: T) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: std::io::BufRead,
+    {
         match crossterm::event::read()? {
             // It's important to check that the event is a key-press event as
             // crossterm also emits key-release and repeat events on Windows.
@@ -17,6 +20,7 @@ impl Pager {
                     KeyCode::PageUp => self.page_up(),
                     KeyCode::PageDown => self.page_down(),
                     KeyCode::Home => self.home(),
+                    KeyCode::End => self.end(reader)?,
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
                     _ => {}
                 }
@@ -84,6 +88,18 @@ impl Pager {
         } else {
             self.view.scroll_row = 0;
         }
+    }
+
+    /// Scroll to the end position.
+    /// Reads the entire file to the buffer.
+    fn end<T>(&mut self, reader: T) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: std::io::BufRead,
+    {
+        self.read_all = true;
+        self.buffer_lines(reader)?;
+        self.view.scroll_row = self.lines.len() - self.view.height + 1;
+        Ok(())
     }
 
     /// Resize the Pager view
