@@ -107,7 +107,9 @@ impl Pager {
 
             // Prepend line numbers if the option was set
             if self.show_line_numbers {
-                line = format!("{:>3} | {}", self.view.start() + i + 1, line);
+                let line_number = self.view.start() + i + 1;
+                let divider = "│";
+                line = format!("{:>3} {} {}", line_number, divider, line);
             }
 
             // Truncate the line to fit in the page width
