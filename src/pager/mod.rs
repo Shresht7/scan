@@ -82,9 +82,6 @@ impl Pager {
     {
         stdout.queue(terminal::Clear(terminal::ClearType::All))?;
 
-        // Buffer initial set of lines
-        self.buffer_lines(&mut reader)?;
-
         // Perform setup
         self.setup(&mut stdout)?;
 
