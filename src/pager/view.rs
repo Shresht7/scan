@@ -7,7 +7,7 @@ use crossterm::{
 use crate::helpers::AnsiString;
 
 /// Represents a viewport
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Default, Clone, PartialEq, Eq)]
 pub struct View {
     /// The index of the first-line to display in the viewport
     pub scroll_row: usize,
@@ -31,27 +31,6 @@ pub struct View {
 }
 
 impl View {
-    /// Instantiates a new View instance
-    pub fn new(
-        scroll_row: usize,
-        scroll_col: usize,
-        x: u16,
-        y: u16,
-        width: usize,
-        height: usize,
-    ) -> Self {
-        Self {
-            scroll_row,
-            scroll_col,
-            show_line_numbers: false,
-            show_borders: false,
-            x,
-            y,
-            height,
-            width,
-        }
-    }
-
     /// The start of the viewport. Index of the first visible line
     pub fn start(&self) -> usize {
         self.scroll_row
@@ -59,11 +38,17 @@ impl View {
 
     /// The end of the viewport. Index of the last visible line
     pub fn end(&self) -> usize {
-        self.scroll_row + self.height
+        self.scroll_row + self.height - 1
     }
 
     /// Perform setup. The setup function is called once on initialization
-    pub fn setup(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    pub fn setup(
+        &mut self,
+        stdout: &mut std::io::Stdout,
+        size: (usize, usize),
+    ) -> std::io::Result<()> {
+        self.width = size.0;
+        self.height = size.1;
         self.render_borders(stdout)?;
         Ok(())
     }
@@ -72,7 +57,7 @@ impl View {
     pub fn render(&self, stdout: &mut std::io::Stdout, lines: &Vec<String>) -> std::io::Result<()> {
         // Iterate over the lines in the viewport ...
         let start = self.start();
-        let end = std::cmp::min(self.end() - 1, lines.len());
+        let end = std::cmp::min(self.end(), lines.len());
         for (i, l) in lines[start..end].iter().enumerate() {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
@@ -123,7 +108,7 @@ impl View {
         // Apply side borders
         if self.show_borders {
             let width = self.width as u16;
-            for _ in 0..self.height - 1 {
+            for _ in 0..=self.height - 2 {
                 stdout
                     .queue(Print(&style(&borders.left).dark_grey()))?
                     .queue(cursor::MoveToColumn(width - 1))?

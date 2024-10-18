@@ -36,8 +36,8 @@ impl Pager {
         let height = size.1 as usize;
         Self {
             lines: Vec::new(),
-            view: view::View::new(0, 0, 0, 0, width, height - 3),
-            last_frame: view::View::new(0, 0, 0, 0, width, height - 3),
+            view: view::View::default(),
+            last_frame: view::View::default(),
             read_all: false,
             rerender: false,
             width,
@@ -106,9 +106,11 @@ impl Pager {
 
     /// Perform setup. The setup function is run once at the start.
     fn setup(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        self.view.width = self.width;
-        self.view.height = self.height - 2;
-        self.view.setup(stdout)?;
+        let command_line_height = 1;
+        let view_height = self.height - command_line_height;
+        let view_width = self.width;
+        self.view
+            .setup(stdout, (view_width, view_height - command_line_height))?;
         Ok(())
     }
 
