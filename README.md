@@ -1,4 +1,4 @@
-# `pager`
+# `scan`
 
 A simple pager command-line application. Like `more` or `less`.
 
@@ -7,11 +7,11 @@ A simple pager command-line application. Like `more` or `less`.
 Read from a file or pipe something in from stdin
 
 ```sh
-pager src/main.rs
+scan src/main.rs
 ```
 
 ```sh
-git log | pager
+git log | scan
 ```
 
 ### Full Help Message

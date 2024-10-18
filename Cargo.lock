@@ -210,14 +210,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pager"
-version = "0.1.0"
-dependencies = [
- "clap",
- "crossterm",
-]
-
-[[package]]
 name = "parking_lot"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -278,6 +270,14 @@ dependencies = [
  "libc",
  "linux-raw-sys",
  "windows-sys",
+]
+
+[[package]]
+name = "scan"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "crossterm",
 ]
 
 [[package]]

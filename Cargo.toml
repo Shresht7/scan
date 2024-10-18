@@ -1,9 +1,9 @@
 [package]
-name = "pager"
+name = "scan"
 description = "A simple pager command-line application"
 version = "0.1.0"
 authors = ["Shresh7"]
-repository = "https://github.com/Shresh7/pager"
+repository = "https://github.com/Shresh7/scan"
 license = "MIT"
 edition = "2021"
 
