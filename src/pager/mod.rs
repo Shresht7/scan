@@ -1,10 +1,5 @@
-use crossterm::{
-    cursor,
-    style::{style, Stylize},
-    terminal, ExecutableCommand,
-};
-
 mod events;
+mod render;
 mod view;
 
 pub struct Pager {
@@ -103,72 +98,6 @@ impl Pager {
         Ok(())
     }
 
-    /// Render the Pager's view
-    fn render(&mut self, stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
-        // Skip rendering if self.rerender is set to false
-        if !self.rerender {
-            return Ok(());
-        }
-
-        // Clear the screen and move the cursor to the top
-        stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-        stdout.execute(cursor::MoveTo(0, 0))?;
-
-        // Print top border
-        if self.show_borders {
-            println!("{}{}{}", "┌", "─".repeat(self.view.width + 2), "┐")
-        }
-
-        // Iterate over the lines in the viewport ...
-        let start = self.view.start();
-        let end = std::cmp::min(self.view.end(), self.lines.len());
-        for (i, l) in self.lines[start..end].iter().enumerate() {
-            // The final formatted line to be printed to the terminal
-            let mut line = String::from(l);
-
-            // Clip the string for horizontal scroll
-            if self.view.scroll_col > 0 {
-                line = match l.split_at_checked(self.view.scroll_col) {
-                    Some((_, x)) => String::from(x),
-                    None => String::new(),
-                }
-            }
-
-            // Prepend line numbers if the option was set
-            if self.show_line_numbers {
-                let line_number = format!("{:>3}", self.view.start() + i + 1);
-                let line_number = style(line_number).dark_grey();
-                let divider = style("│").dark_grey();
-                line = format!("{line_number} {divider} {line}");
-            }
-
-            // Truncate the line to fit in the page width
-            line.truncate(self.view.width);
-
-            // Apply side borders
-            if self.show_borders {
-                if line.len() < self.view.width {
-                    let remaining = " ".repeat(self.view.width - line.len());
-                    line = format!("│ {line}{remaining} │");
-                }
-            }
-
-            // Print out the formatted line
-            println!("{line}");
-        }
-
-        // Print bottom border
-        if self.show_borders {
-            println!("{}{}{}", "└", "─".repeat(self.view.width + 2), "┘")
-        }
-
-        // Reset the rerender flag after rendering
-        self.last_frame = self.view.clone();
-        self.rerender = false;
-
-        Ok(())
-    }
-
     // HELPER FUNCTIONS
     // ----------------
 
@@ -187,15 +116,6 @@ impl Pager {
             }
         }
         Ok(())
-    }
-
-    /// Determines if we need to rerender the view
-    fn should_rerender(&mut self) {
-        // If the current frame is different from the last...
-        if self.view != self.last_frame {
-            return self.rerender = true; // Rerender
-        }
-        return self.rerender = false;
     }
 
     /// Set the exit flag to indicate that we need to exit the program
