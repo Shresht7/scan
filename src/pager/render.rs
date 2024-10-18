@@ -121,9 +121,9 @@ impl Borders {
     fn top(&self, width: usize) -> String {
         format!(
             "{}{}{}",
-            self.top_left,
-            self.top.repeat(width),
-            self.top_right
+            style(&self.top_left).dark_grey(),
+            style(&self.top.repeat(width)).dark_grey(),
+            style(&self.top_right).dark_grey()
         )
     }
 
@@ -131,7 +131,11 @@ impl Borders {
     fn wrap(&self, line: &str, width: usize) -> String {
         if line.visible_width() < width {
             let remaining = " ".repeat(width - line.visible_width());
-            return format!("{} {line}{remaining} {}", self.left, self.right);
+            return format!(
+                "{} {line}{remaining} {}",
+                style(&self.left).dark_grey(),
+                style(&self.right).dark_grey()
+            );
         } else {
             return line.to_string();
         }
@@ -141,9 +145,9 @@ impl Borders {
     fn bottom(&self, width: usize) -> String {
         format!(
             "{}{}{}",
-            self.bottom_left,
-            self.bottom.repeat(width),
-            self.bottom_right
+            style(&self.bottom_left).dark_grey(),
+            style(&self.bottom.repeat(width)).dark_grey(),
+            style(&self.bottom_right).dark_grey()
         )
     }
 }
