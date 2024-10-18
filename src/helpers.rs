@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
-use crossterm::style::{style, Stylize};
+use crossterm::{
+    style::{style, Stylize},
+    tty::IsTty,
+};
 
 #[derive(Clone)]
 pub struct File {
@@ -141,5 +144,13 @@ impl Borders {
             style(&self.bottom.repeat(width - 2)).dark_grey(),
             style(&self.bottom_right).dark_grey()
         )
+    }
+}
+
+/// Prints the human friendly error message
+pub fn print_error(e: Box<dyn std::error::Error>) {
+    let message = style(format!("Error: {e}")).red();
+    if std::io::stderr().is_tty() {
+        eprintln!("{message}")
     }
 }

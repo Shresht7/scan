@@ -1,11 +1,5 @@
 use clap::Parser;
-use crossterm::{
-    cursor,
-    style::{style, Stylize},
-    terminal,
-    tty::IsTty,
-    ExecutableCommand,
-};
+use crossterm::{cursor, terminal, tty::IsTty, ExecutableCommand};
 
 mod cli;
 mod helpers;
@@ -18,7 +12,7 @@ fn main() {
     // Run the main logic with the given command-line arguments
     match run(&args) {
         Err(e) => {
-            print_error(e);
+            helpers::print_error(e);
             std::process::exit(1)
         }
         Ok(_) => std::process::exit(0),
@@ -95,12 +89,4 @@ fn cleanup(stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error
     stdout.execute(terminal::LeaveAlternateScreen)?;
     stdout.execute(cursor::Show)?;
     Ok(())
-}
-
-/// Prints the human friendly error message
-fn print_error(e: Box<dyn std::error::Error>) {
-    let message = style(format!("Error: {e}")).red();
-    if std::io::stderr().is_tty() {
-        eprintln!("{message}")
-    }
 }
