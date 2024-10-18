@@ -1,3 +1,9 @@
+use crossterm::{
+    cursor,
+    style::{style, Print, Stylize},
+    terminal, QueueableCommand,
+};
+
 mod events;
 mod render;
 mod view;
@@ -77,6 +83,38 @@ impl Pager {
     where
         T: std::io::BufRead,
     {
+        stdout.queue(terminal::Clear(terminal::ClearType::All))?;
+
+        // Instantiate the borders
+        let borders = render::Borders::default();
+
+        // Print top border
+        if self.show_borders {
+            stdout
+                .queue(cursor::MoveTo(0, 0))?
+                .queue(Print(borders.top(self.view.width - 2)))?;
+        }
+
+        // Apply side borders
+        if self.show_borders {
+            let width = self.view.width as u16;
+            for _ in 0..self.view.height - 2 {
+                stdout
+                    .queue(Print(&style(&borders.left).dark_grey()))?
+                    .queue(cursor::MoveToColumn(width - 1))?
+                    .queue(Print(style(&borders.right).dark_grey()))?
+                    .queue(cursor::MoveToNextLine(1))?;
+            }
+        }
+
+        // Print bottom border
+        if self.show_borders {
+            let height = self.view.height as u16;
+            stdout
+                .queue(cursor::MoveTo(0, height - 2))?
+                .queue(Print(borders.bottom(self.view.width - 2) + "\n"))?;
+        }
+
         // Buffer initial set of lines
         self.buffer_lines(&mut reader)?;
 

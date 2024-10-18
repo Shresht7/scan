@@ -1,7 +1,9 @@
+use std::io::Write;
+
 use crossterm::{
     cursor,
-    style::{style, Stylize},
-    terminal, ExecutableCommand,
+    style::{style, Print, Stylize},
+    QueueableCommand,
 };
 
 use super::Pager;
@@ -16,18 +18,6 @@ impl Pager {
         // Skip rendering if self.rerender is set to false
         if !self.rerender {
             return Ok(());
-        }
-
-        // Clear the screen and move the cursor to the top
-        stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-        stdout.execute(cursor::MoveTo(0, 0))?;
-
-        // Instantiate the borders
-        let borders = Borders::default();
-
-        // Print top border
-        if self.show_borders {
-            println!("{}", borders.top(self.view.width + 2));
         }
 
         // Iterate over the lines in the viewport ...
@@ -56,19 +46,18 @@ impl Pager {
             // Truncate the line to fit in the page width
             line.as_str().truncate_visible(self.view.width);
 
-            // Apply side borders
-            if self.show_borders {
-                line = borders.wrap(&line, self.view.width);
-            }
+            // Write empty whitespace to the remaining cells to clear previous buffer
+            let remaining = " ".repeat(self.view.width - 5 - line.as_str().visible_width());
+            line = format!("{line}{remaining}");
 
             // Print out the formatted line
-            println!("{line}");
+            stdout
+                .queue(cursor::MoveTo(2, i as u16 + 1))?
+                .queue(Print(line))?;
         }
 
-        // Print bottom border
-        if self.show_borders {
-            println!("{}", borders.bottom(self.view.width + 2));
-        }
+        // Queue the terminal commands and the output
+        stdout.flush()?;
 
         // Reset the rerender flag after rendering
         self.last_frame = self.view.clone();
@@ -90,15 +79,15 @@ impl Pager {
     }
 }
 
-struct Borders {
-    top: String,
-    bottom: String,
-    left: String,
-    right: String,
-    top_left: String,
-    top_right: String,
-    bottom_left: String,
-    bottom_right: String,
+pub struct Borders {
+    pub top: String,
+    pub bottom: String,
+    pub left: String,
+    pub right: String,
+    pub top_left: String,
+    pub top_right: String,
+    pub bottom_left: String,
+    pub bottom_right: String,
 }
 
 impl Default for Borders {
@@ -118,7 +107,7 @@ impl Default for Borders {
 
 impl Borders {
     /// Draw the top border
-    fn top(&self, width: usize) -> String {
+    pub fn top(&self, width: usize) -> String {
         format!(
             "{}{}{}",
             style(&self.top_left).dark_grey(),
@@ -127,22 +116,8 @@ impl Borders {
         )
     }
 
-    /// Wrap a text line with side borders
-    fn wrap(&self, line: &str, width: usize) -> String {
-        if line.visible_width() < width {
-            let remaining = " ".repeat(width - line.visible_width());
-            return format!(
-                "{} {line}{remaining} {}",
-                style(&self.left).dark_grey(),
-                style(&self.right).dark_grey()
-            );
-        } else {
-            return line.to_string();
-        }
-    }
-
     /// Draw the bottom border
-    fn bottom(&self, width: usize) -> String {
+    pub fn bottom(&self, width: usize) -> String {
         format!(
             "{}{}{}",
             style(&self.bottom_left).dark_grey(),
