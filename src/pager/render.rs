@@ -1,7 +1,5 @@
 use std::io::Write;
 
-use crossterm::{terminal::Clear, QueueableCommand};
-
 use super::Pager;
 
 impl Pager {
@@ -14,8 +12,6 @@ impl Pager {
         if !self.rerender {
             return Ok(());
         }
-
-        stdout.queue(Clear(crossterm::terminal::ClearType::All))?;
 
         // Render the view component
         self.view.render(stdout, &self.lines)?;
