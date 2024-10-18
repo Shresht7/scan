@@ -80,6 +80,7 @@ impl Pager {
     where
         T: std::io::BufRead,
     {
+        // Clear the terminal screen
         stdout.queue(terminal::Clear(terminal::ClearType::All))?;
 
         // Perform setup
@@ -87,7 +88,7 @@ impl Pager {
 
         // The main program loop. Break when the exit flag is set.
         while !self.exit {
-            // Buffer more lines as needed based on the self.scroll and self.page_height variables
+            // Buffer lines as needed; based on the viewport
             self.buffer_lines(&mut reader)?;
 
             // Render the pager's view
