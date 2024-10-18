@@ -4,7 +4,7 @@ use crossterm::{
     QueueableCommand,
 };
 
-use crate::helpers::ANSIString;
+use crate::helpers::AnsiString;
 
 /// Represents a viewport
 #[derive(Clone, PartialEq, Eq)]
