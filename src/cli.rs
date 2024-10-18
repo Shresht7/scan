@@ -8,13 +8,13 @@ pub struct Args {
     /// The file to view. If nothing is specified, use input from STDIN
     pub file: Option<File>,
 
-    /// Show line numbers
-    #[clap(short, long, aliases=["line-numbers"])]
+    /// Show line numbers (aliases: --line-numbers, --numbers)
+    #[clap(short = 'l', long, aliases=["line-numbers", "numbers"])]
     pub show_line_numbers: bool,
 
-    /// Show borders
-    #[clap(short, long)]
-    pub borders: bool,
+    /// Show borders around the contents
+    #[clap(short = 'b', long)]
+    pub show_borders: bool,
 
     /// Pass the contents through without running the interactive Pager
     #[clap(short, long, aliases=["skip", "no-page"])]
