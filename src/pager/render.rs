@@ -1,13 +1,8 @@
 use std::io::Write;
 
-use crossterm::{
-    cursor,
-    style::{style, Print, Stylize},
-    QueueableCommand,
-};
+use crossterm::style::{style, Stylize};
 
 use super::Pager;
-use crate::helpers::ANSIString;
 
 impl Pager {
     /// Render the Pager's view
@@ -20,41 +15,8 @@ impl Pager {
             return Ok(());
         }
 
-        // Iterate over the lines in the viewport ...
-        let start = self.view.start();
-        let end = std::cmp::min(self.view.end(), self.lines.len());
-        for (i, l) in self.lines[start..end].iter().enumerate() {
-            // The final formatted line to be printed to the terminal
-            let mut line = String::from(l);
-
-            // Clip the string for horizontal scroll
-            if self.view.scroll_col > 0 {
-                line = match l.split_at_checked(self.view.scroll_col) {
-                    Some((_, x)) => String::from(x),
-                    None => String::new(),
-                }
-            }
-
-            // Prepend line numbers if the option was set
-            if self.show_line_numbers {
-                let line_number = format!("{:>3}", self.view.start() + i + 1);
-                let line_number = style(line_number).dark_grey();
-                let divider = style("│").dark_grey();
-                line = format!("{line_number} {divider} {line}");
-            }
-
-            // Truncate the line to fit in the page width
-            line.as_str().truncate_visible(self.view.width);
-
-            // Write empty whitespace to the remaining cells to clear previous buffer
-            let remaining = " ".repeat(self.view.width - 5 - line.as_str().visible_width());
-            line = format!("{line}{remaining}");
-
-            // Print out the formatted line
-            stdout
-                .queue(cursor::MoveTo(2, i as u16 + 1))?
-                .queue(Print(line))?;
-        }
+        // Render the view component
+        self.view.render(stdout, &self.lines)?;
 
         // Queue the terminal commands and the output
         stdout.flush()?;

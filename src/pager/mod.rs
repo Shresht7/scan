@@ -18,9 +18,6 @@ pub struct Pager {
     /// Stores a snapshot of the previously rendered view.
     last_frame: view::View,
 
-    /// Should show line numbers
-    show_line_numbers: bool,
-
     /// Show borders
     show_borders: bool,
 
@@ -37,11 +34,12 @@ pub struct Pager {
 impl Pager {
     /// Instantiate the Pager application
     pub fn init(size: (u16, u16)) -> Pager {
+        let width = size.0 as usize;
+        let height = size.1 as usize;
         Self {
             lines: Vec::new(),
-            view: view::View::new(0, 0, size),
-            last_frame: view::View::new(0, 0, size),
-            show_line_numbers: false,
+            view: view::View::new(0, 0, width, height - 1),
+            last_frame: view::View::new(0, 0, width, height - 1),
             show_borders: false,
             read_all: false,
             rerender: false,
@@ -51,7 +49,7 @@ impl Pager {
 
     /// Enable/Disable line numbers
     pub fn with_line_numbers(&mut self, yes: bool) -> &mut Self {
-        self.show_line_numbers = yes;
+        self.view.show_line_numbers = yes;
         self
     }
 
