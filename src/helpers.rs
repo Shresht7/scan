@@ -42,6 +42,7 @@ const ESC: char = '\x1b';
 
 pub trait ANSIString {
     fn visible_width(&self) -> usize;
+    fn truncate_visible(&mut self, width: usize) -> &mut Self;
 }
 
 impl ANSIString for &str {
@@ -64,6 +65,14 @@ impl ANSIString for &str {
         }
 
         return width;
+    }
+
+    fn truncate_visible(&mut self, width: usize) -> &mut Self {
+        let visible_width = self.visible_width();
+        if visible_width > width {
+            self.to_string().truncate(width);
+        }
+        self
     }
 }
 

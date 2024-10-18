@@ -54,7 +54,7 @@ impl Pager {
             }
 
             // Truncate the line to fit in the page width
-            line.truncate(self.view.width);
+            line.as_str().truncate_visible(self.view.width);
 
             // Apply side borders
             if self.show_borders {
