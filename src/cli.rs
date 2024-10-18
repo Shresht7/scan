@@ -12,6 +12,10 @@ pub struct Args {
     #[clap(short, long, aliases=["line-numbers"])]
     pub show_line_numbers: bool,
 
+    /// Show borders
+    #[clap(short, long)]
+    pub borders: bool,
+
     /// Pass the contents through without running the interactive Pager
     #[clap(short, long, aliases=["skip", "no-page"])]
     pub passthrough: bool,

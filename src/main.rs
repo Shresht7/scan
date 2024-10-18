@@ -50,6 +50,7 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Set options
     pager
         .with_line_numbers(args.show_line_numbers)
+        .with_borders(args.borders)
         .all(args.all);
 
     // Set scroll offsets

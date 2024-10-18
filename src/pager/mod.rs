@@ -20,6 +20,9 @@ pub struct Pager {
     /// Should show line numbers
     show_line_numbers: bool,
 
+    /// Show borders
+    show_borders: bool,
+
     // Should read the entire file in one go
     read_all: bool,
 
@@ -38,6 +41,7 @@ impl Pager {
             view: view::View::new(0, 0, size),
             last_frame: view::View::new(0, 0, size),
             show_line_numbers: false,
+            show_borders: false,
             read_all: false,
             rerender: true,
             exit: false,
@@ -47,6 +51,12 @@ impl Pager {
     /// Enable/Disable line numbers
     pub fn with_line_numbers(&mut self, b: bool) -> &mut Self {
         self.show_line_numbers = b;
+        self
+    }
+
+    /// Enable/Disable borders
+    pub fn with_borders(&mut self, yes: bool) -> &mut Self {
+        self.show_borders = yes;
         self
     }
 
@@ -104,6 +114,11 @@ impl Pager {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
         stdout.execute(cursor::MoveTo(0, 0))?;
 
+        // Print top border
+        if self.show_borders {
+            println!("{}{}{}", "┌", "─".repeat(self.view.width + 2), "┐")
+        }
+
         // Iterate over the lines in the viewport ...
         let start = self.view.start();
         let end = std::cmp::min(self.view.end(), self.lines.len());
@@ -130,8 +145,21 @@ impl Pager {
             // Truncate the line to fit in the page width
             line.truncate(self.view.width);
 
+            // Apply side borders
+            if self.show_borders {
+                if line.len() < self.view.width {
+                    let remaining = " ".repeat(self.view.width - line.len());
+                    line = format!("│ {line}{remaining} │");
+                }
+            }
+
             // Print out the formatted line
             println!("{line}");
+        }
+
+        // Print bottom border
+        if self.show_borders {
+            println!("{}{}{}", "└", "─".repeat(self.view.width + 2), "┘")
         }
 
         // Reset the rerender flag after rendering
