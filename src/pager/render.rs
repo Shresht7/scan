@@ -57,10 +57,7 @@ impl Pager {
 
             // Apply side borders
             if self.show_borders {
-                if line.len() < self.view.width {
-                    let remaining = " ".repeat(self.view.width - line.len());
-                    line = format!("│ {line}{remaining} │");
-                }
+                line = borders.wrap(line, self.view.width);
             }
 
             // Print out the formatted line
@@ -127,6 +124,16 @@ impl Borders {
             self.top.repeat(width),
             self.top_right
         )
+    }
+
+    /// Wrap a text line with side borders
+    fn wrap(&self, line: String, width: usize) -> String {
+        if line.len() < width {
+            let remaining = " ".repeat(width - line.len());
+            return format!("{} {line}{remaining} {}", self.left, self.right);
+        } else {
+            return line;
+        }
     }
 
     /// Draw the bottom border
