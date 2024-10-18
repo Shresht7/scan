@@ -19,6 +19,11 @@ pub struct View {
     /// Show borders
     pub show_borders: bool,
 
+    /// The x-position of the element
+    pub x: u16,
+    /// The y-position of the element
+    pub y: u16,
+
     // The height of the viewport
     pub height: usize,
     // The width of the viewport
@@ -27,12 +32,21 @@ pub struct View {
 
 impl View {
     /// Instantiates a new View instance
-    pub fn new(scroll_row: usize, scroll_col: usize, width: usize, height: usize) -> Self {
+    pub fn new(
+        scroll_row: usize,
+        scroll_col: usize,
+        x: u16,
+        y: u16,
+        width: usize,
+        height: usize,
+    ) -> Self {
         Self {
             scroll_row,
             scroll_col,
             show_line_numbers: false,
             show_borders: false,
+            x,
+            y,
             height,
             width,
         }
@@ -102,7 +116,7 @@ impl View {
         // Print top border
         if self.show_borders {
             stdout
-                .queue(cursor::MoveTo(0, 0))?
+                .queue(cursor::MoveTo(self.x, self.y))?
                 .queue(Print(borders.top(self.width)))?;
         }
 
@@ -121,7 +135,7 @@ impl View {
         // Print bottom border
         if self.show_borders {
             stdout
-                .queue(cursor::MoveTo(0, self.height as u16))?
+                .queue(cursor::MoveTo(self.x, self.height as u16))?
                 .queue(Print(borders.bottom(self.width)))?;
         }
 

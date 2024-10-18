@@ -36,8 +36,8 @@ impl Pager {
         let height = size.1 as usize;
         Self {
             lines: Vec::new(),
-            view: view::View::new(0, 0, width, height - 3),
-            last_frame: view::View::new(0, 0, width, height - 3),
+            view: view::View::new(0, 0, 0, 0, width, height - 3),
+            last_frame: view::View::new(0, 0, 0, 0, width, height - 3),
             read_all: false,
             rerender: false,
             width,
