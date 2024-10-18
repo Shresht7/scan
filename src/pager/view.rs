@@ -48,10 +48,14 @@ impl View {
         self.scroll_row + self.height
     }
 
+    /// Perform setup. The setup function is called once on initialization
+    pub fn setup(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+        self.render_borders(stdout)?;
+        Ok(())
+    }
+
     /// Render the view component
     pub fn render(&self, stdout: &mut std::io::Stdout, lines: &Vec<String>) -> std::io::Result<()> {
-        self.render_borders(stdout)?;
-
         // Iterate over the lines in the viewport ...
         let start = self.start();
         let end = std::cmp::min(self.end() - 1, lines.len());
@@ -79,7 +83,7 @@ impl View {
             line.as_str().truncate_visible(self.width);
 
             // Write empty whitespace to the remaining cells to clear previous buffer
-            let remaining = " ".repeat(self.width - 5 - line.as_str().visible_width());
+            let remaining = " ".repeat(self.width - 4 - line.as_str().visible_width());
             line = format!("{line}{remaining}");
 
             // Print out the formatted line
@@ -116,9 +120,8 @@ impl View {
 
         // Print bottom border
         if self.show_borders {
-            let height = self.height as u16;
             stdout
-                .queue(cursor::MoveTo(0, height))?
+                .queue(cursor::MoveTo(0, self.height as u16))?
                 .queue(Print(borders.bottom(self.width)))?;
         }
 

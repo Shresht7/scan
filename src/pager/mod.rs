@@ -20,6 +20,11 @@ pub struct Pager {
     /// Should rerender the view
     rerender: bool,
 
+    /// Width of the application
+    width: usize,
+    /// Height of the application
+    height: usize,
+
     /// If true, exit the program
     exit: bool,
 }
@@ -35,6 +40,8 @@ impl Pager {
             last_frame: view::View::new(0, 0, width, height - 3),
             read_all: false,
             rerender: false,
+            width,
+            height,
             exit: false,
         }
     }
@@ -78,6 +85,9 @@ impl Pager {
         // Buffer initial set of lines
         self.buffer_lines(&mut reader)?;
 
+        // Perform setup
+        self.setup(&mut stdout)?;
+
         // The main program loop. Break when the exit flag is set.
         while !self.exit {
             // Buffer more lines as needed based on the self.scroll and self.page_height variables
@@ -93,6 +103,14 @@ impl Pager {
             self.should_rerender();
         }
 
+        Ok(())
+    }
+
+    /// Perform setup. The setup function is run once at the start.
+    fn setup(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+        self.view.width = self.width;
+        self.view.height = self.height - 2;
+        self.view.setup(stdout)?;
         Ok(())
     }
 
