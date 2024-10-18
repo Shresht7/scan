@@ -44,7 +44,7 @@ impl Pager {
             show_line_numbers: false,
             show_borders: false,
             read_all: false,
-            rerender: true,
+            rerender: false,
             exit: false,
         }
     }
