@@ -5,6 +5,7 @@ use crossterm::{
 };
 
 use super::Pager;
+use crate::helpers::ANSIString;
 
 impl Pager {
     /// Render the Pager's view
@@ -57,7 +58,7 @@ impl Pager {
 
             // Apply side borders
             if self.show_borders {
-                line = borders.wrap(line, self.view.width);
+                line = borders.wrap(&line, self.view.width);
             }
 
             // Print out the formatted line
@@ -127,12 +128,12 @@ impl Borders {
     }
 
     /// Wrap a text line with side borders
-    fn wrap(&self, line: String, width: usize) -> String {
-        if line.len() < width {
-            let remaining = " ".repeat(width - line.len());
+    fn wrap(&self, line: &str, width: usize) -> String {
+        if line.visible_width() < width {
+            let remaining = " ".repeat(width - line.visible_width());
             return format!("{} {line}{remaining} {}", self.left, self.right);
         } else {
-            return line;
+            return line.to_string();
         }
     }
 
