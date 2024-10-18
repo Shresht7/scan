@@ -21,9 +21,12 @@ impl Pager {
         stdout.execute(terminal::Clear(terminal::ClearType::All))?;
         stdout.execute(cursor::MoveTo(0, 0))?;
 
+        // Instantiate the borders
+        let borders = Borders::default();
+
         // Print top border
         if self.show_borders {
-            println!("{}{}{}", "┌", "─".repeat(self.view.width + 2), "┐")
+            println!("{}", borders.top(self.view.width + 2));
         }
 
         // Iterate over the lines in the viewport ...
@@ -66,7 +69,7 @@ impl Pager {
 
         // Print bottom border
         if self.show_borders {
-            println!("{}{}{}", "└", "─".repeat(self.view.width + 2), "┘")
+            println!("{}", borders.bottom(self.view.width + 2));
         }
 
         // Reset the rerender flag after rendering
@@ -86,5 +89,53 @@ impl Pager {
             return self.rerender = true; // Rerender
         }
         return self.rerender = false;
+    }
+}
+
+struct Borders {
+    top: String,
+    bottom: String,
+    left: String,
+    right: String,
+    top_left: String,
+    top_right: String,
+    bottom_left: String,
+    bottom_right: String,
+}
+
+impl Default for Borders {
+    fn default() -> Self {
+        Self {
+            top: "─".into(),
+            bottom: "─".into(),
+            left: "│".into(),
+            right: "│".into(),
+            top_left: "┌".into(),
+            top_right: "┐".into(),
+            bottom_left: "└".into(),
+            bottom_right: "┘".into(),
+        }
+    }
+}
+
+impl Borders {
+    /// Draw the top border
+    fn top(&self, width: usize) -> String {
+        format!(
+            "{}{}{}",
+            self.top_left,
+            self.top.repeat(width),
+            self.top_right
+        )
+    }
+
+    /// Draw the bottom border
+    fn bottom(&self, width: usize) -> String {
+        format!(
+            "{}{}{}",
+            self.bottom_left,
+            self.bottom.repeat(width),
+            self.bottom_right
+        )
     }
 }
