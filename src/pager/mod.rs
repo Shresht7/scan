@@ -50,8 +50,8 @@ impl Pager {
     }
 
     /// Enable/Disable line numbers
-    pub fn with_line_numbers(&mut self, b: bool) -> &mut Self {
-        self.show_line_numbers = b;
+    pub fn with_line_numbers(&mut self, yes: bool) -> &mut Self {
+        self.show_line_numbers = yes;
         self
     }
 

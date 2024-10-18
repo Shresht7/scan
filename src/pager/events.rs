@@ -3,7 +3,7 @@ use crossterm::event::{Event, KeyCode, KeyEventKind, MouseEventKind};
 use super::Pager;
 
 impl Pager {
-    /// Handle crossterm events like key-presses
+    /// Handle crossterm events like key-presses, mouse-scroll and window resize
     pub fn handle_events<T>(&mut self, reader: T) -> Result<(), Box<dyn std::error::Error>>
     where
         T: std::io::BufRead,
