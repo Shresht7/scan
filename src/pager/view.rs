@@ -16,6 +16,8 @@ pub struct View {
 
     /// Should show line numbers
     pub show_line_numbers: bool,
+    /// Show borders
+    pub show_borders: bool,
 
     // The height of the viewport
     pub height: usize,
@@ -30,6 +32,7 @@ impl View {
             scroll_row,
             scroll_col,
             show_line_numbers: false,
+            show_borders: false,
             height,
             width,
         }
@@ -47,9 +50,11 @@ impl View {
 
     /// Render the view component
     pub fn render(&self, stdout: &mut std::io::Stdout, lines: &Vec<String>) -> std::io::Result<()> {
+        self.render_borders(stdout)?;
+
         // Iterate over the lines in the viewport ...
         let start = self.start();
-        let end = std::cmp::min(self.end(), lines.len());
+        let end = std::cmp::min(self.end() - 1, lines.len());
         for (i, l) in lines[start..end].iter().enumerate() {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
@@ -82,6 +87,41 @@ impl View {
                 .queue(cursor::MoveTo(2, i as u16 + 1))?
                 .queue(Print(line))?;
         }
+
+        Ok(())
+    }
+
+    pub fn render_borders(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+        // Instantiate the borders
+        let borders = crate::helpers::Borders::default();
+
+        // Print top border
+        if self.show_borders {
+            stdout
+                .queue(cursor::MoveTo(0, 0))?
+                .queue(Print(borders.top(self.width)))?;
+        }
+
+        // Apply side borders
+        if self.show_borders {
+            let width = self.width as u16;
+            for _ in 0..self.height - 1 {
+                stdout
+                    .queue(Print(&style(&borders.left).dark_grey()))?
+                    .queue(cursor::MoveToColumn(width - 1))?
+                    .queue(Print(style(&borders.right).dark_grey()))?
+                    .queue(cursor::MoveToNextLine(1))?;
+            }
+        }
+
+        // Print bottom border
+        if self.show_borders {
+            let height = self.height as u16;
+            stdout
+                .queue(cursor::MoveTo(0, height))?
+                .queue(Print(borders.bottom(self.width)))?;
+        }
+
         Ok(())
     }
 }

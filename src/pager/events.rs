@@ -103,9 +103,8 @@ impl Pager {
     }
 
     /// Resize the Pager view
-    fn resize(&mut self, w: u16, h: u16) {
-        let border_size = if self.show_borders { 2 } else { 0 };
-        self.view.width = w as usize - border_size - 2;
-        self.view.height = h as usize - border_size;
+    pub fn resize(&mut self, w: u16, h: u16) {
+        self.view.width = w as usize;
+        self.view.height = h as usize - 2;
     }
 }
