@@ -1,3 +1,5 @@
+use crate::helpers::layout;
+
 mod events;
 mod render;
 mod view;
@@ -99,11 +101,11 @@ impl Pager {
 
     /// Perform setup. The setup function is run once at the start.
     fn setup(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        let command_line_height = 1;
-        let view_height = self.height - command_line_height;
-        let view_width = self.width;
-        self.view
-            .setup(stdout, (view_width, view_height - command_line_height))?;
+        let sizes = layout::distribute(
+            self.height,
+            &vec![layout::Size::Flexible, layout::Size::Fixed(1)],
+        );
+        self.view.setup(stdout, (self.width, sizes[0]))?;
         Ok(())
     }
 
