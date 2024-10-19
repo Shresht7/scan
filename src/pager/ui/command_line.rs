@@ -66,18 +66,34 @@ impl CommandLine {
     }
 
     pub fn handle_events(&mut self, event: Event) -> Result<(), Box<dyn std::error::Error>> {
-        match event {
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                match key_event.code {
-                    KeyCode::Char('/') => self.mode = Mode::Search,
-                    KeyCode::Char(':') | KeyCode::Char(';') => self.mode = Mode::Goto,
-                    KeyCode::Char(c) => {
-                        self.input.push(c);
+        match self.mode {
+            Mode::Search | Mode::Goto => match event {
+                Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                    match key_event.code {
+                        KeyCode::Esc => {
+                            self.mode = Mode::Base;
+                            self.input.clear();
+                        }
+                        KeyCode::Char(c) => self.input.push(c),
+                        KeyCode::Backspace => {
+                            self.input.pop();
+                        }
+                        _ => {}
                     }
-                    _ => {}
                 }
-            }
-            _ => {}
+                _ => {}
+            },
+            Mode::Base => match event {
+                Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                    match key_event.code {
+                        KeyCode::Char('/') => self.mode = Mode::Search,
+                        KeyCode::Char(':') | KeyCode::Char(';') => self.mode = Mode::Goto,
+                        KeyCode::Esc => self.mode = Mode::Base,
+                        _ => {}
+                    }
+                }
+                _ => {}
+            },
         }
         Ok(())
     }
