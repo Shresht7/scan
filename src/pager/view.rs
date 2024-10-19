@@ -26,10 +26,13 @@ pub struct View {
     /// The y-position of the element
     pub y: u16,
 
-    // The height of the viewport
+    /// The height of the viewport
     pub height: usize,
-    // The width of the viewport
+    /// The width of the viewport
     pub width: usize,
+
+    /// The borders around the viewport
+    borders: helpers::Borders,
 }
 
 impl View {
@@ -103,14 +106,11 @@ impl View {
     }
 
     pub fn render_borders(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        // Instantiate the borders
-        let borders = crate::helpers::Borders::default();
-
         // Print top border
         if self.show_borders {
             stdout
                 .queue(cursor::MoveTo(self.x, self.y))?
-                .queue(Print(borders.top(self.width)))?;
+                .queue(Print(self.borders.top(self.width)))?;
         }
 
         // Apply side borders
@@ -118,16 +118,16 @@ impl View {
             let width = self.width as u16;
             for _ in 0..self.height - 2 {
                 stdout
-                    .queue(Print(&style(&borders.left).dark_grey()))?
+                    .queue(Print(&style(&self.borders.left).dark_grey()))?
                     .queue(cursor::MoveToColumn(width - 1))?
-                    .queue(Print(style(&borders.right).dark_grey()))?
+                    .queue(Print(style(&self.borders.right).dark_grey()))?
                     .queue(cursor::MoveToNextLine(1))?;
             }
         }
 
         // Print bottom border
         if self.show_borders {
-            stdout.queue(Print(borders.bottom(self.width)))?;
+            stdout.queue(Print(self.borders.bottom(self.width)))?;
         }
 
         Ok(())

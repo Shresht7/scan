@@ -1,5 +1,6 @@
 use crossterm::style::{style, Stylize};
 
+#[derive(Clone, PartialEq, Eq)]
 pub struct Borders {
     pub top: String,
     pub bottom: String,
