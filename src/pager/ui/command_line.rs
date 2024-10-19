@@ -10,6 +10,9 @@ use crossterm::{
 
 #[derive(Clone, Default, PartialEq, Eq)]
 pub struct CommandLine {
+    /// Stores the user input
+    input: String,
+
     /// The current mode of the command-line
     pub mode: Mode,
 
@@ -51,8 +54,13 @@ impl CommandLine {
         stdout
             .queue(cursor::MoveTo(self.x, self.y))?
             .queue(Clear(ClearType::CurrentLine))?
-            .queue(Print(mode))?
-            .flush()?;
+            .queue(Print(mode))?;
+
+        if self.input.len() > 0 {
+            stdout.queue(Print(&self.input))?;
+        }
+
+        stdout.flush()?;
 
         Ok(self.clone())
     }
@@ -63,6 +71,9 @@ impl CommandLine {
                 match key_event.code {
                     KeyCode::Char('/') => self.mode = Mode::Search,
                     KeyCode::Char(':') | KeyCode::Char(';') => self.mode = Mode::Goto,
+                    KeyCode::Char(c) => {
+                        self.input.push(c);
+                    }
                     _ => {}
                 }
             }
