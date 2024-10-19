@@ -4,6 +4,7 @@ mod events;
 mod render;
 mod view;
 
+#[derive(Default)]
 pub struct Pager {
     /// The collection of buffered lines
     lines: Vec<String>,
@@ -35,13 +36,9 @@ impl Pager {
     /// Instantiate the Pager application
     pub fn init(size: (u16, u16)) -> Pager {
         Self {
-            lines: Vec::new(),
-            read_all: false,
             width: size.0 as usize,
             height: size.1 as usize,
-            exit: false,
-            view: view::View::default(),
-            prev: PreviousFrame::default(),
+            ..Default::default()
         }
     }
 
