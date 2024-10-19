@@ -89,20 +89,26 @@ impl View {
                 let line_number = format!("{:>3}", self.start() + i + 1);
                 let line_number = style(line_number).dark_grey();
                 let divider = style("│").dark_grey();
-                line = format!(" {line_number} {divider} {line}");
+                line = format!("{line_number} {divider} {line}");
             }
 
             // Truncate the line to fit in the page width
-            line = helpers::truncate_visible(&mut line, self.width);
+            line = helpers::truncate_visible(
+                &mut line,
+                self.width
+                    .saturating_sub(self.borders.width_reduction() + 2),
+            );
 
             // Write empty whitespace to the remaining cells to clear previous buffer
-            let remaining = " ".repeat(self.width - helpers::visible_width(&line));
+            let remaining = " ".repeat(self.width.saturating_sub(
+                helpers::visible_width(&line) + self.borders.width_reduction() + 2,
+            ));
             line = format!("{line}{remaining}");
 
             // Print out the formatted line
             stdout
                 .queue(cursor::MoveTo(
-                    helpers::visible_width(&self.borders.left) as u16,
+                    helpers::visible_width(&self.borders.left) as u16 + 1,
                     i as u16 + 1,
                 ))?
                 .queue(Print(line))?

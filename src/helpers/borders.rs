@@ -1,5 +1,7 @@
 use crossterm::style::{style, Stylize};
 
+use super::visible_width;
+
 #[derive(Clone, PartialEq, Eq)]
 pub struct Borders {
     pub top: String,
@@ -46,6 +48,18 @@ impl Borders {
         }
         if self.bottom != "" || self.bottom_left != "" || self.bottom_right != "" {
             reduction += 1;
+        }
+        reduction
+    }
+
+    /// Calculate the reduction in width due to borders
+    pub fn width_reduction(&self) -> usize {
+        let mut reduction = 0;
+        if self.left != "" || self.top_left != "" || self.bottom_left != "" {
+            reduction += visible_width(&self.left);
+        }
+        if self.right != "" || self.top_right != "" || self.bottom_right != "" {
+            reduction += visible_width(&self.right);
         }
         reduction
     }
