@@ -1,9 +1,17 @@
 use std::io::Write;
 
-use crossterm::{cursor, style::Print, QueueableCommand};
+use crossterm::{
+    cursor,
+    style::{style, Print, Stylize},
+    terminal::{Clear, ClearType},
+    QueueableCommand,
+};
 
 #[derive(Clone, Default, PartialEq, Eq)]
 pub struct CommandLine {
+    /// The current mode of the command-line
+    pub mode: Mode,
+
     /// The x-position of the element
     pub x: u16,
     /// The y-position of the element
@@ -13,6 +21,14 @@ pub struct CommandLine {
     pub height: usize,
     /// The width of the element
     pub width: usize,
+}
+
+#[derive(Default, Clone, PartialEq, Eq)]
+pub enum Mode {
+    #[default]
+    Base,
+    Goto,
+    Search,
 }
 
 impl CommandLine {
@@ -25,9 +41,16 @@ impl CommandLine {
     }
 
     pub fn render(&self, stdout: &mut std::io::Stdout) -> std::io::Result<Self> {
+        let mode = match self.mode {
+            Mode::Base => style(""),
+            Mode::Goto => style(" GOTO ").black().on_cyan(),
+            Mode::Search => style(" SEARCH ").black().on_dark_yellow(),
+        };
+
         stdout
             .queue(cursor::MoveTo(self.x, self.y))?
-            .queue(Print("Command Line"))?
+            .queue(Clear(ClearType::CurrentLine))?
+            .queue(Print(mode))?
             .flush()?;
 
         Ok(self.clone())
