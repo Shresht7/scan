@@ -2,7 +2,7 @@ use std::io::Write;
 
 use crossterm::{
     cursor,
-    event::{Event, KeyCode, KeyEventKind},
+    event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     style::{style, Print, Stylize},
     terminal::{Clear, ClearType},
     QueueableCommand,
@@ -78,7 +78,13 @@ impl CommandLine {
                         }
                         KeyCode::Char(c) => self.input.push(c),
                         KeyCode::Backspace => {
-                            self.input.pop();
+                            if key_event.modifiers == KeyModifiers::CONTROL {
+                                let mut words: Vec<&str> = self.input.split(" ").collect();
+                                words.pop();
+                                self.input = words.join(" ");
+                            } else {
+                                self.input.pop();
+                            }
                         }
                         _ => {}
                     }
