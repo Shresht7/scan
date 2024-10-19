@@ -32,16 +32,14 @@ pub struct Pager {
 impl Pager {
     /// Instantiate the Pager application
     pub fn init(size: (u16, u16)) -> Pager {
-        let width = size.0 as usize;
-        let height = size.1 as usize;
         Self {
             lines: Vec::new(),
             view: view::View::default(),
             last_frame: view::View::default(),
             read_all: false,
             rerender: false,
-            width,
-            height,
+            width: size.0 as usize,
+            height: size.1 as usize,
             exit: false,
         }
     }
