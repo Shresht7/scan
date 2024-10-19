@@ -9,10 +9,17 @@ pub fn distribute(total: usize, sizes: &[Size]) -> Vec<usize> {
     let mut fixed_size = 0;
     // Determine the number of flexible elements
     let mut flexible_count = 0;
-    for s in sizes {
+    // Track the index of the last flexible element
+    let mut last_flexible_element: Option<usize> = None;
+
+    // Iterate over sizes to determine the variables
+    for (i, s) in sizes.iter().enumerate() {
         match s {
             Size::Fixed(x) => fixed_size += x,
-            _ => flexible_count += 1,
+            _ => {
+                last_flexible_element = Some(i);
+                flexible_count += 1
+            }
         }
     }
     // Determine the space available for flexible elements
@@ -24,11 +31,25 @@ pub fn distribute(total: usize, sizes: &[Size]) -> Vec<usize> {
         None => 0,
     };
 
+    // Calculate the remaining space, if any
+    let remainder = match available_size.checked_rem(flexible_count) {
+        Some(res) => res,
+        None => 0,
+    };
+
+    // Map the calculated sizes
     sizes
         .iter()
-        .map(|s| match s {
+        .enumerate()
+        .map(|(i, s)| match s {
             Size::Fixed(x) => x.clone(),
-            Size::Flexible => flexible_size,
+            Size::Flexible => {
+                if last_flexible_element.is_some_and(|idx| idx == i) {
+                    flexible_size + remainder
+                } else {
+                    flexible_size
+                }
+            }
         })
         .collect()
 }
@@ -62,11 +83,18 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "Not implemented yet"]
     fn should_add_the_remainder_to_the_last_flexible_element() {
-        let res = distribute(13, &vec![Size::Flexible, Size::Fixed(2), Size::Flexible]);
-        assert_eq!(5, res[0]);
-        assert_eq!(2, res[1]);
-        assert_eq!(6, res[0]);
+        let mixed = distribute(13, &vec![Size::Flexible, Size::Fixed(2), Size::Flexible]);
+        assert_eq!(5, mixed[0]);
+        assert_eq!(2, mixed[1]);
+        assert_eq!(6, mixed[2]);
+        let all_flexible = distribute(17, &vec![Size::Flexible, Size::Flexible, Size::Flexible]);
+        assert_eq!(5, all_flexible[0]);
+        assert_eq!(5, all_flexible[1]);
+        assert_eq!(7, all_flexible[2]);
+        let all_fixed = distribute(21, &vec![Size::Fixed(3), Size::Fixed(5), Size::Fixed(7)]);
+        assert_eq!(3, all_fixed[0]);
+        assert_eq!(5, all_fixed[1]);
+        assert_eq!(7, all_fixed[2]);
     }
 }
