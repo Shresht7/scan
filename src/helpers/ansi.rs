@@ -12,13 +12,16 @@ pub fn visible_width(s: &str) -> usize {
             width += 1
         } else {
             // .. otherwise, we hit the start of an ESC sequence
-            while let Some(c) = chars.next() {
+            'esc_sequence: while let Some(c) = chars.next() {
                 match c {
-                    // Control Sequence Introducer: continue until `\x40-\x7C` (ASCII @A–Z[\]^_`a–z{|}~).
+                    // Control Sequence Introducer: continue until `\x40-\x7E` (ASCII @A–Z[\]^_`a–z{|}~).
                     // See https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
                     '[' => {
-                        if matches!(chars.next(), Some('\x40'..='\x7C') | None) {
-                            break; // Break as soon as we encounter the end of an ansi-code
+                        loop {
+                            let next = chars.next();
+                            if matches!(next, Some('\x40'..='\x7E') | None) {
+                                break 'esc_sequence; // Break as soon as we encounter the end of an ansi-code
+                            }
                         }
                     }
                     _ => width += 1,
