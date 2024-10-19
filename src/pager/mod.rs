@@ -12,7 +12,7 @@ pub struct Pager {
     view: view::View,
 
     /// Stores a snapshot of the previously rendered view.
-    last_frame: view::View,
+    prev: PreviousFrame,
 
     // Should read the entire file in one go
     read_all: bool,
@@ -26,17 +26,22 @@ pub struct Pager {
     exit: bool,
 }
 
+#[derive(Default)]
+struct PreviousFrame {
+    view: view::View,
+}
+
 impl Pager {
     /// Instantiate the Pager application
     pub fn init(size: (u16, u16)) -> Pager {
         Self {
             lines: Vec::new(),
-            view: view::View::default(),
-            last_frame: view::View::default(),
             read_all: false,
             width: size.0 as usize,
             height: size.1 as usize,
             exit: false,
+            view: view::View::default(),
+            prev: PreviousFrame::default(),
         }
     }
 
