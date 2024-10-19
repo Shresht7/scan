@@ -17,9 +17,6 @@ pub struct Pager {
     // Should read the entire file in one go
     read_all: bool,
 
-    /// Should rerender the view
-    rerender: bool,
-
     /// Width of the application
     width: usize,
     /// Height of the application
@@ -37,7 +34,6 @@ impl Pager {
             view: view::View::default(),
             last_frame: view::View::default(),
             read_all: false,
-            rerender: false,
             width: size.0 as usize,
             height: size.1 as usize,
             exit: false,
@@ -91,9 +87,6 @@ impl Pager {
 
             // Handle key events before continuing to loop
             self.handle_events(&mut reader)?;
-
-            // Determine if we need to render the view
-            self.should_rerender();
         }
 
         Ok(())

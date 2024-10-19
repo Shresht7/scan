@@ -54,7 +54,11 @@ impl View {
     }
 
     /// Render the view component
-    pub fn render(&self, stdout: &mut std::io::Stdout, lines: &Vec<String>) -> std::io::Result<()> {
+    pub fn render(
+        &self,
+        stdout: &mut std::io::Stdout,
+        lines: &Vec<String>,
+    ) -> std::io::Result<Self> {
         // Iterate over the lines in the viewport ...
         let start = self.start();
         let end = std::cmp::min(self.end(), lines.len());
@@ -91,7 +95,7 @@ impl View {
                 .queue(Print(line))?;
         }
 
-        Ok(())
+        Ok(self.clone())
     }
 
     pub fn render_borders(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
