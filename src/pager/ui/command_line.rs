@@ -76,7 +76,12 @@ impl CommandLine {
                             self.input.clear();
                             stop_event_propagation = true;
                         }
-                        KeyCode::Char(c) => self.input.push(c),
+                        KeyCode::Char(c) => {
+                            if self.mode == Mode::Goto && !c.is_numeric() {
+                                return Ok(true);
+                            }
+                            self.input.push(c)
+                        }
                         KeyCode::Backspace => {
                             if key_event.modifiers == KeyModifiers::CONTROL {
                                 let mut words: Vec<&str> = self.input.split(" ").collect();
