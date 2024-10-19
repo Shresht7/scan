@@ -1,5 +1,3 @@
-use crossterm::{terminal, QueueableCommand};
-
 mod events;
 mod render;
 mod view;
@@ -78,9 +76,6 @@ impl Pager {
     where
         T: std::io::BufRead,
     {
-        // Clear the terminal screen
-        stdout.queue(terminal::Clear(terminal::ClearType::All))?;
-
         // Perform setup
         self.setup(&mut stdout)?;
 
