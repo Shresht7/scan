@@ -88,7 +88,7 @@ impl Pager {
             self.render(&mut stdout)?;
 
             // Handle key events before continuing to loop
-            self.handle_events(&mut reader)?;
+            self.handle_events(&mut reader, stdout)?;
         }
 
         Ok(())

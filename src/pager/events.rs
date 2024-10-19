@@ -4,7 +4,11 @@ use super::Pager;
 
 impl Pager {
     /// Handle crossterm events like key-presses, mouse-scroll and window resize
-    pub fn handle_events<T>(&mut self, reader: T) -> Result<(), Box<dyn std::error::Error>>
+    pub fn handle_events<T>(
+        &mut self,
+        reader: T,
+        stdout: &mut std::io::Stdout,
+    ) -> Result<(), Box<dyn std::error::Error>>
     where
         T: std::io::BufRead,
     {
@@ -30,7 +34,7 @@ impl Pager {
                 MouseEventKind::ScrollDown => self.scroll_down(1),
                 _ => {}
             },
-            Event::Resize(w, h) => self.resize(w, h),
+            Event::Resize(w, h) => self.resize(w, h, stdout)?,
             _ => {}
         }
         Ok(())
@@ -103,8 +107,10 @@ impl Pager {
     }
 
     /// Resize the Pager view
-    pub fn resize(&mut self, w: u16, h: u16) {
-        self.view.width = w as usize;
-        self.view.height = h as usize - 2;
+    pub fn resize(&mut self, w: u16, h: u16, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+        self.width = w as usize;
+        self.height = h as usize;
+        self.setup(stdout)?;
+        Ok(())
     }
 }

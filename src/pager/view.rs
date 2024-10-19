@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use crossterm::{
     cursor,
     style::{style, Print, Stylize},
@@ -38,7 +40,8 @@ impl View {
 
     /// The end of the viewport. Index of the last visible line
     pub fn end(&self) -> usize {
-        self.scroll_row + self.height - 1
+        let borders = if self.show_borders { 2 } else { 0 };
+        self.scroll_row + self.height - borders
     }
 
     /// Perform setup. The setup function is called once on initialization
@@ -92,7 +95,8 @@ impl View {
             // Print out the formatted line
             stdout
                 .queue(cursor::MoveTo(2, i as u16 + 1))?
-                .queue(Print(line))?;
+                .queue(Print(line))?
+                .flush()?;
         }
 
         Ok(self.clone())
@@ -112,7 +116,7 @@ impl View {
         // Apply side borders
         if self.show_borders {
             let width = self.width as u16;
-            for _ in 0..=self.height - 2 {
+            for _ in 0..self.height - 2 {
                 stdout
                     .queue(Print(&style(&borders.left).dark_grey()))?
                     .queue(cursor::MoveToColumn(width - 1))?
@@ -123,9 +127,7 @@ impl View {
 
         // Print bottom border
         if self.show_borders {
-            stdout
-                .queue(cursor::MoveTo(self.x, self.height as u16))?
-                .queue(Print(borders.bottom(self.width)))?;
+            stdout.queue(Print(borders.bottom(self.width)))?;
         }
 
         Ok(())
