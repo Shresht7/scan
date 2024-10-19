@@ -57,7 +57,7 @@ impl CommandLine {
             .queue(Print(mode))?;
 
         if self.input.len() > 0 {
-            stdout.queue(Print(&self.input))?;
+            stdout.queue(Print(" "))?.queue(Print(&self.input))?;
         }
 
         stdout.flush()?;
