@@ -12,6 +12,9 @@ pub struct Pager {
     /// The current Pager's view
     view: ui::View,
 
+    /// The application's command line
+    command_line: ui::CommandLine,
+
     /// Stores a snapshot of the previously rendered view.
     prev: PreviousFrame,
 
@@ -30,6 +33,7 @@ pub struct Pager {
 #[derive(Default)]
 struct PreviousFrame {
     view: ui::View,
+    command_line: ui::CommandLine,
 }
 
 impl Pager {
@@ -96,11 +100,17 @@ impl Pager {
 
     /// Perform setup. The setup function is run once at the start.
     fn setup(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+        // Determine the layout sizes
         let sizes = layout::distribute(
             self.height,
             &vec![layout::Size::Flexible, layout::Size::Fixed(1)],
         );
+
+        // Setup subcomponents
         self.view.setup(stdout, (self.width, sizes[0]))?;
+        self.command_line
+            .setup((1, self.height as u16 - 1), (self.width, sizes[1]))?;
+
         Ok(())
     }
 

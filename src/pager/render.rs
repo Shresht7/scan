@@ -10,7 +10,10 @@ impl Pager {
         if self.view != self.prev.view {
             self.prev.view = self.view.render(stdout, &self.lines)?;
         }
-
+        // Render the command line component
+        if self.command_line != self.prev.command_line {
+            self.prev.command_line = self.command_line.render(stdout)?;
+        }
         Ok(())
     }
 }
