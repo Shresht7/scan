@@ -2,6 +2,7 @@ use std::io::Write;
 
 use crossterm::{
     cursor,
+    event::{Event, KeyCode, KeyEventKind},
     style::{style, Print, Stylize},
     terminal::{Clear, ClearType},
     QueueableCommand,
@@ -54,5 +55,19 @@ impl CommandLine {
             .flush()?;
 
         Ok(self.clone())
+    }
+
+    pub fn handle_events(&mut self, event: Event) -> Result<(), Box<dyn std::error::Error>> {
+        match event {
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                match key_event.code {
+                    KeyCode::Char('/') => self.mode = Mode::Search,
+                    KeyCode::Char(':') | KeyCode::Char(';') => self.mode = Mode::Goto,
+                    _ => {}
+                }
+            }
+            _ => {}
+        }
+        Ok(())
     }
 }

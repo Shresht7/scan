@@ -12,7 +12,8 @@ impl Pager {
     where
         T: std::io::BufRead,
     {
-        match crossterm::event::read()? {
+        let event = crossterm::event::read()?;
+        match event {
             // It's important to check that the event is a key-press event as
             // crossterm also emits key-release and repeat events on Windows.
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
@@ -26,8 +27,7 @@ impl Pager {
                     KeyCode::Home => self.home(),
                     KeyCode::End => self.end(reader)?,
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
-                    KeyCode::Char('/') => self.command_line.mode = Mode::Search,
-                    KeyCode::Char(':') | KeyCode::Char(';') => self.command_line.mode = Mode::Goto,
+
                     _ => {}
                 }
             }
@@ -39,6 +39,9 @@ impl Pager {
             Event::Resize(w, h) => self.resize(w, h, stdout)?,
             _ => {}
         }
+
+        self.command_line.handle_events(event)?;
+
         Ok(())
     }
 
