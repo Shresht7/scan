@@ -4,7 +4,7 @@ use crossterm::{
     QueueableCommand,
 };
 
-use crate::helpers::AnsiString;
+use crate::helpers;
 
 /// Represents a viewport
 #[derive(Default, Clone, PartialEq, Eq)]
@@ -79,10 +79,10 @@ impl View {
             }
 
             // Truncate the line to fit in the page width
-            line.as_str().truncate_visible(self.width);
+            line = helpers::truncate_visible(&mut line, self.width);
 
             // Write empty whitespace to the remaining cells to clear previous buffer
-            let remaining = " ".repeat(self.width - 4 - line.as_str().visible_width());
+            let remaining = " ".repeat(self.width - helpers::visible_width(&line));
             line = format!("{line}{remaining}");
 
             // Print out the formatted line
