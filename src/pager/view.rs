@@ -43,7 +43,11 @@ impl View {
 
     /// The end of the viewport. Index of the last visible line
     pub fn end(&self) -> usize {
-        let borders = if self.show_borders { 2 } else { 0 };
+        let borders = if self.show_borders {
+            self.borders.height_reduction()
+        } else {
+            0
+        };
         self.scroll_row + self.height - borders
     }
 
@@ -85,7 +89,7 @@ impl View {
                 let line_number = format!("{:>3}", self.start() + i + 1);
                 let line_number = style(line_number).dark_grey();
                 let divider = style("│").dark_grey();
-                line = format!("{line_number} {divider} {line}");
+                line = format!(" {line_number} {divider} {line}");
             }
 
             // Truncate the line to fit in the page width
@@ -97,7 +101,10 @@ impl View {
 
             // Print out the formatted line
             stdout
-                .queue(cursor::MoveTo(2, i as u16 + 1))?
+                .queue(cursor::MoveTo(
+                    helpers::visible_width(&self.borders.left) as u16,
+                    i as u16 + 1,
+                ))?
                 .queue(Print(line))?
                 .flush()?;
         }

@@ -38,6 +38,18 @@ impl Borders {
         )
     }
 
+    /// Calculate the reduction in height due to the borders
+    pub fn height_reduction(&self) -> usize {
+        let mut reduction = 0;
+        if self.top != "" || self.top_left != "" || self.top_right != "" {
+            reduction += 1;
+        }
+        if self.bottom != "" || self.bottom_left != "" || self.bottom_right != "" {
+            reduction += 1;
+        }
+        reduction
+    }
+
     /// Draw the bottom border
     pub fn bottom(&self, width: usize) -> String {
         format!(
