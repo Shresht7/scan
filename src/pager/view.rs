@@ -106,10 +106,12 @@ impl View {
             line = format!("{line}{remaining}");
 
             // Print out the formatted line
+            let x_offset = if self.show_borders { 1 } else { 0 };
+            let y_offset = if self.show_borders { 1 } else { 0 };
             stdout
                 .queue(cursor::MoveTo(
-                    helpers::visible_width(&self.borders.left) as u16 + 1,
-                    i as u16 + 1,
+                    helpers::visible_width(&self.borders.left) as u16 + x_offset,
+                    i as u16 + y_offset,
                 ))?
                 .queue(Print(line))?
                 .flush()?;
