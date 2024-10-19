@@ -1,6 +1,6 @@
 use crossterm::event::{Event, KeyCode, KeyEventKind, MouseEventKind};
 
-use super::Pager;
+use super::{ui::Mode, Pager};
 
 impl Pager {
     /// Handle crossterm events like key-presses, mouse-scroll and window resize
@@ -33,7 +33,10 @@ impl Pager {
                     KeyCode::Home => self.home(),
                     KeyCode::End => self.end(reader)?,
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
-
+                    KeyCode::Enter => match self.command_line.mode {
+                        Mode::Search => self.view.search = self.command_line.input.clone(),
+                        _ => {}
+                    },
                     _ => {}
                 }
             }

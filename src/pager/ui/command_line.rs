@@ -11,7 +11,7 @@ use crossterm::{
 #[derive(Clone, Default, PartialEq, Eq)]
 pub struct CommandLine {
     /// Stores the user input
-    input: String,
+    pub input: String,
 
     /// The current mode of the command-line
     pub mode: Mode,
