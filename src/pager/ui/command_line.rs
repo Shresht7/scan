@@ -65,7 +65,8 @@ impl CommandLine {
         Ok(self.clone())
     }
 
-    pub fn handle_events(&mut self, event: Event) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn handle_events(&mut self, event: &Event) -> Result<bool, Box<dyn std::error::Error>> {
+        let mut stop_event_propagation = false;
         match self.mode {
             Mode::Search | Mode::Goto => match event {
                 Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
@@ -73,6 +74,7 @@ impl CommandLine {
                         KeyCode::Esc => {
                             self.mode = Mode::Base;
                             self.input.clear();
+                            stop_event_propagation = true;
                         }
                         KeyCode::Char(c) => self.input.push(c),
                         KeyCode::Backspace => {
@@ -95,6 +97,6 @@ impl CommandLine {
                 _ => {}
             },
         }
-        Ok(())
+        Ok(stop_event_propagation)
     }
 }
