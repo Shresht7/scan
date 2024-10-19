@@ -2,7 +2,7 @@ use crate::helpers::layout;
 
 mod events;
 mod render;
-mod view;
+mod ui;
 
 #[derive(Default)]
 pub struct Pager {
@@ -10,7 +10,7 @@ pub struct Pager {
     lines: Vec<String>,
 
     /// The current Pager's view
-    view: view::View,
+    view: ui::View,
 
     /// Stores a snapshot of the previously rendered view.
     prev: PreviousFrame,
@@ -29,7 +29,7 @@ pub struct Pager {
 
 #[derive(Default)]
 struct PreviousFrame {
-    view: view::View,
+    view: ui::View,
 }
 
 impl Pager {
