@@ -21,10 +21,10 @@ fn main() {
 
 /// Run the main logic of the application
 fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
-    // Get a reference to STDOUT
+    // Get a reference to the standard output
     let mut stdout = std::io::stdout();
 
-    // Get a reference to the reader
+    // Instantiate a reader to read from. This can be a file or standard input
     let mut reader = helpers::get_reader(&args.file)?;
 
     // Determine if we are in passthrough mode.
@@ -35,42 +35,41 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    // Get the terminal width and height from crossterm
-    let size = crossterm::terminal::size()?;
-
     // Initialize the Pager application
+    let size = crossterm::terminal::size()?;
     let mut pager = pager::Pager::init(size);
 
-    // Set options
+    // Set configuration options
     pager
         .with_line_numbers(args.show_line_numbers)
         .with_borders(args.show_borders)
         .all(args.all);
 
-    // Set scroll offsets
     if let Some(file) = &args.file {
         pager.with_offset(file.row, file.col);
     }
 
-    // Setup the terminal before running the Pager application
+    // Setup the terminal before running the application
     setup(&mut stdout)?;
 
     // Run the Pager application
     pager.run(reader, &mut stdout)?;
 
-    // Cleanup the terminal when the Pager application exits
+    // Cleanup the terminal after the Pager application exits
     cleanup(&mut stdout)?;
 
     Ok(())
 }
 
-/// Prepare stdout by entering the Alternate Screen Buffer,
-/// clearing the terminal and moving the cursor to the 0, 0 position
+/// Prepares the terminal for the application.
+/// Switches to the Alternate Screen Buffer and clears the screen.
+/// Also moves the cursor to the top and hides it.
+/// Registers a panic-hook to automatically call the `cleanup` function
 fn setup(stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
     stdout.execute(terminal::EnterAlternateScreen)?;
     stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-    stdout.execute(cursor::Hide)?;
     stdout.execute(cursor::MoveTo(0, 0))?;
+    stdout.execute(cursor::Hide)?;
 
     // Create a custom hook to handle graceful cleanup of the terminal when panicking
     let original_panic = std::panic::take_hook();
@@ -84,7 +83,7 @@ fn setup(stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-/// Restore the terminal by exiting the Alternate Screen Buffer when we're done
+/// Restore the terminal by exiting the Alternate Screen Buffer when we're done. Also re-enables the cursor.
 fn cleanup(stdout: &mut std::io::Stdout) -> Result<(), Box<dyn std::error::Error>> {
     stdout.execute(terminal::LeaveAlternateScreen)?;
     stdout.execute(cursor::Show)?;
