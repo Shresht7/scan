@@ -1,6 +1,7 @@
 mod ansi;
 mod borders;
 mod file;
+pub mod layout;
 
 pub use ansi::*;
 pub use borders::*;
