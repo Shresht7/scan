@@ -17,7 +17,7 @@ impl Pager {
         let event = crossterm::event::read()?;
 
         // Call sub-component event-handlers
-        // If the event handler returns a true, then the event propagation must stop now and we exit early
+        // If the event handlers returns a true, then the event propagation must stop now and we exit early
         if self.command_line.handle_events(&event)? {
             return Ok(());
         }
@@ -25,7 +25,23 @@ impl Pager {
             return Ok(());
         }
 
-        match event {
+        // Call global event-handler
+        self.handle_global_events(event, reader, stdout)?;
+
+        Ok(())
+    }
+
+    /// Handle global level events
+    fn handle_global_events<T>(
+        &mut self,
+        event: Event,
+        reader: T,
+        stdout: &mut std::io::Stdout,
+    ) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: std::io::BufRead,
+    {
+        Ok(match event {
             // It's important to check that the event is a key-press event as
             // crossterm also emits key-release and repeat events on Windows.
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
@@ -48,9 +64,7 @@ impl Pager {
             }
             Event::Resize(w, h) => self.resize(w, h, stdout)?,
             _ => {}
-        }
-
-        Ok(())
+        })
     }
 
     /// Scroll to the end position.
