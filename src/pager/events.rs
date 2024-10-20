@@ -37,6 +37,7 @@ impl Pager {
                         Mode::Search => self.view.search = self.command_line.input.clone(),
                         Mode::Goto => {
                             let input = self.command_line.input.clone();
+                            self.command_line.input.clear();
                             let mut iter = input.split(":");
                             iter.next()
                                 .and_then(|s| s.parse::<usize>().ok())
