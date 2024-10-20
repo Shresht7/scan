@@ -1,5 +1,7 @@
 use crossterm::event::{Event, KeyCode, KeyEventKind, MouseEventKind};
 
+use crate::helpers;
+
 use super::{ui::Mode, Pager};
 
 impl Pager {
@@ -38,13 +40,9 @@ impl Pager {
                         Mode::Goto => {
                             let input = self.command_line.input.clone();
                             self.command_line.input.clear();
-                            let mut iter = input.split(":");
-                            iter.next()
-                                .and_then(|s| s.parse::<usize>().ok())
-                                .and_then(|y| Some(self.view.scroll_row = y.saturating_sub(1)));
-                            iter.next()
-                                .and_then(|s| s.parse::<usize>().ok())
-                                .and_then(|x| Some(self.view.scroll_col = x.saturating_sub(1)));
+                            let (row, col) = helpers::parse_row_and_col(&input);
+                            self.view.scroll_row = row.unwrap_or(1).saturating_sub(1);
+                            self.view.scroll_col = col.unwrap_or(1).saturating_sub(1);
                         }
                         _ => {}
                     },
