@@ -21,17 +21,16 @@ pub struct View {
 
     /// Should show line numbers
     pub show_line_numbers: bool,
-    /// Show borders
+    /// Should show borders
     pub show_borders: bool,
 
-    /// The x-position of the element
+    /// The x-position (column number)
     pub x: u16,
-    /// The y-position of the element
+    /// The y-position (row number)
     pub y: u16,
-
-    /// The height of the viewport
+    /// The height of the viewport in number of rows
     pub height: usize,
-    /// The width of the viewport
+    /// The width of the viewport in number of columns
     pub width: usize,
 
     /// The borders around the viewport

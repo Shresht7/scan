@@ -1,8 +1,7 @@
 use crossterm::event::{Event, KeyCode, KeyEventKind, MouseEventKind};
 
-use crate::helpers;
-
 use super::{ui::Mode, Pager};
+use crate::helpers;
 
 impl Pager {
     /// Handle crossterm events like key-presses, mouse-scroll and window resize
@@ -14,8 +13,10 @@ impl Pager {
     where
         T: std::io::BufRead,
     {
+        // Read crossterm event
         let event = crossterm::event::read()?;
 
+        // Call sub-component event-handlers
         // If the event handler returns a true, then the event propagation must stop now and we exit early
         if self.command_line.handle_events(&event)? {
             return Ok(());
