@@ -3,6 +3,7 @@ use super::View;
 use crossterm::event::{Event, KeyCode, KeyEventKind, MouseEventKind};
 
 impl View {
+    /// Handles the events for the view component. Returns true if the event propagation must stop
     pub fn handle_events(
         &mut self,
         event: &Event,
