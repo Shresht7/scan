@@ -90,4 +90,8 @@ impl View {
         }
         return false;
     }
+
+    // NOTE: Scrolling to the end is handled at the Pager level because the view component doesn't
+    // NOTE: know the extent of the total number of lines yet as they haven't been buffered.
+    // NOTE: Once the Pager read all the contents, it can signal down the scroll_col value to go to the end.
 }
