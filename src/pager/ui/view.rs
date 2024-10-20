@@ -79,19 +79,24 @@ impl View {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
 
+            let mut found_something = false;
+
             // If the line matches the search criteria
             if !self.search.is_empty() {
                 let mut highlighted_line = String::new();
                 let mut remaining = &line[..];
 
                 while let Some(start_idx) = remaining.find(&self.search) {
+                    found_something = true;
+
                     // Add text before the match
                     highlighted_line.push_str(&remaining[..start_idx]);
 
                     // Add the highlighted match
                     let end_idx = start_idx + self.search.len();
                     let match_str = &remaining[start_idx..end_idx];
-                    highlighted_line.push_str(&style(match_str).reverse().to_string());
+                    highlighted_line
+                        .push_str(&style(match_str).black().on_white().bold().to_string());
 
                     // Move the remaining slice to after the match
                     remaining = &remaining[end_idx..];
@@ -108,6 +113,10 @@ impl View {
                     Some((_, x)) => String::from(x),
                     None => String::new(),
                 }
+            }
+
+            if !self.search.is_empty() && !found_something {
+                line = style(line).dark_grey().to_string();
             }
 
             // Prepend line numbers if the option was set
