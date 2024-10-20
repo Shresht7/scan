@@ -1,14 +1,14 @@
 use std::io::Write;
 
 use crossterm::{
-    cursor::{self, MoveToColumn},
+    cursor,
     event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     style::{style, Print, Stylize},
     terminal::{Clear, ClearType},
     QueueableCommand,
 };
 
-use crate::helpers::visible_width;
+use crate::helpers;
 
 /// Represents the Command Line component of the Pager application.
 /// This is where the user can input their search queries and goto commands.
@@ -132,11 +132,11 @@ impl CommandLine {
         stdout
             .queue(cursor::MoveToColumn(
                 self.width
-                    .saturating_sub(visible_width(&help_message.to_string()) + 1)
+                    .saturating_sub(helpers::visible_width(&help_message.to_string()) + 1)
                     as u16,
             ))?
             .queue(Print(help_message))?
-            .queue(MoveToColumn(self.x))?;
+            .queue(cursor::MoveToColumn(self.x))?;
         Ok(())
     }
 
