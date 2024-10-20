@@ -130,7 +130,10 @@ impl CommandLine {
                     code: KeyCode::Char(c),
                     ..
                 } => {
-                    if self.mode == Mode::Goto && !c.is_numeric() {
+                    if self.mode == Mode::Goto {
+                        if c == &':' || c.is_numeric() {
+                            self.input.push(c.clone());
+                        }
                         return Ok(true);
                     }
                     self.input.push(c.clone());
