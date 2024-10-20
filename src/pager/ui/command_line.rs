@@ -72,7 +72,7 @@ impl CommandLine {
         let mode = match self.mode {
             Mode::Base => style(""),
             Mode::Goto => style(" GOTO ").black().on_cyan(),
-            Mode::Search => style(" SEARCH ").black().on_dark_yellow(),
+            Mode::Search => style(" FIND ").black().on_dark_yellow(),
         };
         stdout.queue(Print(mode))?;
         Ok(())
@@ -110,7 +110,7 @@ impl CommandLine {
         let comma = style(", ").dark_grey().italic();
         let ctrl_f = style("Ctrl+F").dark_green();
         let ctrl_g = style("Ctrl+G").dark_green();
-        let search = style("Find").dark_grey().italic();
+        let find = style("Find").dark_grey().italic();
         let goto = style("Goto").dark_grey().italic();
         let submit = style("Submit").dark_grey().italic();
         let back = style("Back").dark_grey().italic();
@@ -121,11 +121,11 @@ impl CommandLine {
                 format!("{enter} {submit} {dot} {ctrl_g} {goto} {dot} {esc} {back}")
             }
             Mode::Goto => {
-                format!("{enter} {submit} {dot} {ctrl_f} {search} {dot} {esc} {back}")
+                format!("{enter} {submit} {dot} {ctrl_f} {find} {dot} {esc} {back}")
             }
             Mode::Base => {
                 format!(
-                    "{ctrl_f}{comma}{slash} {search} {dot} {ctrl_g}{comma}{colon} {goto} {dot} {esc} {quit}"
+                    "{ctrl_f}{comma}{slash} {find} {dot} {ctrl_g}{comma}{colon} {goto} {dot} {esc} {quit}"
                 )
             }
         };
