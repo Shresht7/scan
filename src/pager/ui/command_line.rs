@@ -133,7 +133,8 @@ impl CommandLine {
                     if self.mode == Mode::Goto && !c.is_numeric() {
                         return Ok(true);
                     }
-                    self.input.push(c.clone())
+                    self.input.push(c.clone());
+                    return Ok(true);
                 }
                 KeyEvent {
                     code: KeyCode::Backspace,
