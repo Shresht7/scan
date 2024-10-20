@@ -47,24 +47,37 @@ impl Pager {
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                 match key_event.code {
                     KeyCode::End => self.go_to_end(reader)?,
+                    KeyCode::Enter => self.handle_command_line_submit(),
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
-                    KeyCode::Enter => match self.command_line.mode {
-                        Mode::Search => self.view.search = self.command_line.input.clone(),
-                        Mode::Goto => {
-                            let input = self.command_line.input.clone();
-                            self.command_line.input.clear();
-                            let (row, col) = helpers::parse_row_and_col(&input);
-                            self.view.scroll_row = row.unwrap_or(1).saturating_sub(1);
-                            self.view.scroll_col = col.unwrap_or(1).saturating_sub(1);
-                        }
-                        _ => {}
-                    },
                     _ => {}
                 }
             }
             Event::Resize(w, h) => self.resize(w, h, stdout)?,
             _ => {}
         })
+    }
+
+    /// Command-line submit event handlers
+    fn handle_command_line_submit(&mut self) {
+        match self.command_line.mode {
+            Mode::Search => self.search(),
+            Mode::Goto => self.goto(),
+            _ => {}
+        }
+    }
+
+    /// Search for the given input
+    fn search(&mut self) {
+        self.view.search = self.command_line.input.clone()
+    }
+
+    /// Jump to the provided line number and column
+    fn goto(&mut self) {
+        let input = self.command_line.input.clone();
+        self.command_line.input.clear();
+        let (row, col) = helpers::parse_row_and_col(&input);
+        self.view.scroll_row = row.unwrap_or(1).saturating_sub(1);
+        self.view.scroll_col = col.unwrap_or(1).saturating_sub(1);
     }
 
     /// Read and scroll to the end position.
