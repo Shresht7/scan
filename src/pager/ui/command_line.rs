@@ -2,7 +2,7 @@ use std::io::Write;
 
 use crossterm::{
     cursor,
-    event::{Event, KeyCode, KeyEventKind, KeyModifiers},
+    event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     style::{style, Print, Stylize},
     terminal::{Clear, ClearType},
     QueueableCommand,
@@ -136,13 +136,32 @@ impl CommandLine {
         event: &Event,
     ) -> Result<bool, Box<dyn std::error::Error>> {
         match event {
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                match key_event.code {
-                    KeyCode::Char('/') => self.mode = Mode::Search,
-                    KeyCode::Char(':') | KeyCode::Char(';') => self.mode = Mode::Goto,
-                    _ => {}
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => match key_event {
+                // Switch to Search Mode
+                KeyEvent {
+                    code: KeyCode::Char('/'),
+                    ..
                 }
-            }
+                | KeyEvent {
+                    modifiers: KeyModifiers::CONTROL,
+                    code: KeyCode::Char('f'),
+                    ..
+                } => self.mode = Mode::Search,
+
+                // Switch to Goto Mode
+                KeyEvent {
+                    code: KeyCode::Char(':') | KeyCode::Char(';'),
+                    ..
+                }
+                | KeyEvent {
+                    modifiers: KeyModifiers::CONTROL,
+                    code: KeyCode::Char('g'),
+                    ..
+                } => self.mode = Mode::Goto,
+
+                // Catch all
+                _ => {}
+            },
             _ => {}
         }
         Ok(false)
