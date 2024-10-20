@@ -35,6 +35,16 @@ impl Pager {
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
                     KeyCode::Enter => match self.command_line.mode {
                         Mode::Search => self.view.search = self.command_line.input.clone(),
+                        Mode::Goto => {
+                            let input = self.command_line.input.clone();
+                            let mut iter = input.split(":");
+                            iter.next()
+                                .and_then(|s| s.parse::<usize>().ok())
+                                .and_then(|y| Some(self.view.scroll_row = y.saturating_sub(1)));
+                            iter.next()
+                                .and_then(|s| s.parse::<usize>().ok())
+                                .and_then(|x| Some(self.view.scroll_col = x.saturating_sub(1)));
+                        }
                         _ => {}
                     },
                     _ => {}
