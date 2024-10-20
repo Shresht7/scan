@@ -109,7 +109,7 @@ impl Pager {
         // Setup subcomponents
         self.view.setup(stdout, (self.width, sizes[0]))?;
         self.command_line
-            .setup((1, self.height as u16 - 1), (self.width, sizes[1]))?;
+            .setup((0, self.height as u16), (self.width, sizes[1]))?;
 
         Ok(())
     }

@@ -74,7 +74,7 @@ impl CommandLine {
             Mode::Goto => style(" GOTO ").black().on_cyan(),
             Mode::Search => style(" FIND ").black().on_dark_yellow(),
         };
-        stdout.queue(Print(mode))?;
+        stdout.queue(Print(" "))?.queue(Print(mode))?;
         Ok(())
     }
 
