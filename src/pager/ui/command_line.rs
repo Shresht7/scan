@@ -80,17 +80,23 @@ impl CommandLine {
 
     /// Renders the user-input on the command-line for visual feedback
     fn render_input(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        stdout.queue(Print(" "))?;
+        stdout.queue(Print(" "))?; // Apply some padding
+
+        let cursor = style("|").rapid_blink();
+
         if self.input.len() > 0 {
-            stdout.queue(Print(&self.input))?;
+            stdout.queue(Print(&self.input))?.queue(Print(cursor))?;
         } else {
             let placeholder = style(match self.mode {
                 Mode::Search => "Enter Search Query...",
                 Mode::Goto => "Enter Line or Line:Column",
                 Mode::Base => "",
             })
-            .dark_grey();
-            stdout.queue(Print(placeholder))?;
+            .dark_grey()
+            .italic();
+            if self.mode != Mode::Base {
+                stdout.queue(Print(cursor))?.queue(Print(placeholder))?;
+            }
         }
         Ok(())
     }
