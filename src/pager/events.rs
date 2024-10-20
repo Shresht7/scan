@@ -1,6 +1,8 @@
 use crossterm::event::{Event, KeyCode, KeyEventKind, MouseEventKind};
 
-use super::Pager;
+use crate::helpers;
+
+use super::{ui::Mode, Pager};
 
 impl Pager {
     /// Handle crossterm events like key-presses, mouse-scroll and window resize
@@ -12,7 +14,14 @@ impl Pager {
     where
         T: std::io::BufRead,
     {
-        match crossterm::event::read()? {
+        let event = crossterm::event::read()?;
+
+        // If the event handler returns a true, then the event propagation must stop now and we exit early
+        if self.command_line.handle_events(&event)? {
+            return Ok(());
+        }
+
+        match event {
             // It's important to check that the event is a key-press event as
             // crossterm also emits key-release and repeat events on Windows.
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
@@ -26,6 +35,17 @@ impl Pager {
                     KeyCode::Home => self.home(),
                     KeyCode::End => self.end(reader)?,
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
+                    KeyCode::Enter => match self.command_line.mode {
+                        Mode::Search => self.view.search = self.command_line.input.clone(),
+                        Mode::Goto => {
+                            let input = self.command_line.input.clone();
+                            self.command_line.input.clear();
+                            let (row, col) = helpers::parse_row_and_col(&input);
+                            self.view.scroll_row = row.unwrap_or(1).saturating_sub(1);
+                            self.view.scroll_col = col.unwrap_or(1).saturating_sub(1);
+                        }
+                        _ => {}
+                    },
                     _ => {}
                 }
             }
@@ -37,6 +57,7 @@ impl Pager {
             Event::Resize(w, h) => self.resize(w, h, stdout)?,
             _ => {}
         }
+
         Ok(())
     }
 

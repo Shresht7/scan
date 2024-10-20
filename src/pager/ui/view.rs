@@ -11,6 +11,9 @@ use crate::helpers;
 /// Represents a viewport
 #[derive(Default, Clone, PartialEq, Eq)]
 pub struct View {
+    /// The string to search for in the view
+    pub search: String,
+
     /// The index of the first-line to display in the viewport
     pub scroll_row: usize,
     /// The index of the first-column to display in the viewport
@@ -75,6 +78,29 @@ impl View {
         for (i, l) in lines[start..end].iter().enumerate() {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
+
+            // If the line matches the search criteria
+            if !self.search.is_empty() {
+                let mut highlighted_line = String::new();
+                let mut remaining = &line[..];
+
+                while let Some(start_idx) = remaining.find(&self.search) {
+                    // Add text before the match
+                    highlighted_line.push_str(&remaining[..start_idx]);
+
+                    // Add the highlighted match
+                    let end_idx = start_idx + self.search.len();
+                    let match_str = &remaining[start_idx..end_idx];
+                    highlighted_line.push_str(&style(match_str).reverse().to_string());
+
+                    // Move the remaining slice to after the match
+                    remaining = &remaining[end_idx..];
+                }
+
+                // Add any remaining text after the last match
+                highlighted_line.push_str(remaining);
+                line = highlighted_line;
+            }
 
             // Clip the string for horizontal scroll
             if self.scroll_col > 0 {
