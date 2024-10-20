@@ -46,7 +46,7 @@ impl Pager {
             // crossterm also emits key-release and repeat events on Windows.
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                 match key_event.code {
-                    KeyCode::End => self.end(reader)?,
+                    KeyCode::End => self.go_to_end(reader)?,
                     KeyCode::Esc | KeyCode::Char('q') => self.exit(),
                     KeyCode::Enter => match self.command_line.mode {
                         Mode::Search => self.view.search = self.command_line.input.clone(),
@@ -67,19 +67,19 @@ impl Pager {
         })
     }
 
-    /// Scroll to the end position.
+    /// Read and scroll to the end position.
     /// Reads the entire file to the buffer.
-    fn end<T>(&mut self, reader: T) -> Result<(), Box<dyn std::error::Error>>
+    fn go_to_end<T>(&mut self, reader: T) -> Result<(), Box<dyn std::error::Error>>
     where
         T: std::io::BufRead,
     {
-        self.read_all = true;
-        self.buffer_lines(reader)?;
-        self.view.scroll_row = self.lines.len() - self.view.height + 1;
+        self.read_all = true; // Set the flag to read all contents from the reader
+        self.buffer_lines(reader)?; // Read the contents
+        self.view.scroll_row = self.lines.len() - self.view.height + 1; // Update the scroll view position
         Ok(())
     }
 
-    /// Resize the Pager view
+    /// Resize event handler
     pub fn resize(&mut self, w: u16, h: u16, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
         self.width = w as usize;
         self.height = h as usize;
