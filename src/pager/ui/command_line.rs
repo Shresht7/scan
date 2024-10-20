@@ -1,12 +1,14 @@
 use std::io::Write;
 
 use crossterm::{
-    cursor,
+    cursor::{self, MoveToColumn},
     event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     style::{style, Print, Stylize},
     terminal::{Clear, ClearType},
     QueueableCommand,
 };
+
+use crate::helpers::visible_width;
 
 /// Represents the Command Line component of the Pager application.
 /// This is where the user can input their search queries and goto commands.
@@ -55,6 +57,10 @@ impl CommandLine {
 
     /// The render function is responsible for rendering the component out to the screen
     pub fn render(&self, stdout: &mut std::io::Stdout) -> std::io::Result<Self> {
+        stdout
+            .queue(cursor::MoveTo(self.x, self.y))?
+            .queue(Clear(ClearType::CurrentLine))?;
+        self.render_help(stdout)?;
         self.render_mode(stdout)?;
         self.render_input(stdout)?;
         stdout.flush()?;
@@ -68,10 +74,7 @@ impl CommandLine {
             Mode::Goto => style(" GOTO ").black().on_cyan(),
             Mode::Search => style(" SEARCH ").black().on_dark_yellow(),
         };
-        stdout
-            .queue(cursor::MoveTo(self.x, self.y))?
-            .queue(Clear(ClearType::CurrentLine))?
-            .queue(Print(mode))?;
+        stdout.queue(Print(mode))?;
         Ok(())
     }
 
@@ -89,6 +92,45 @@ impl CommandLine {
             .dark_grey();
             stdout.queue(Print(placeholder))?;
         }
+        Ok(())
+    }
+
+    /// Renders the contextual help message
+    fn render_help(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+        let enter = style("Enter").dark_green();
+        let esc = style("Esc").dark_green();
+        let slash = style("/").dark_green();
+        let colon = style(":").dark_green();
+        let comma = style(", ").dark_grey().italic();
+        let ctrl_f = style("Ctrl+F").dark_green();
+        let ctrl_g = style("Ctrl+G").dark_green();
+        let search = style("Find").dark_grey().italic();
+        let goto = style("Goto").dark_grey().italic();
+        let submit = style("Submit").dark_grey().italic();
+        let back = style("Back").dark_grey().italic();
+        let quit = style("Quit").dark_grey().italic();
+        let dot = style("•").dark_grey();
+        let help_message = match self.mode {
+            Mode::Search => {
+                format!("{enter} {submit} {dot} {ctrl_g} {goto} {dot} {esc} {back}")
+            }
+            Mode::Goto => {
+                format!("{enter} {submit} {dot} {ctrl_f} {search} {dot} {esc} {back}")
+            }
+            Mode::Base => {
+                format!(
+                    "{ctrl_f}{comma}{slash} {search} {dot} {ctrl_g}{comma}{colon} {goto} {dot} {esc} {quit}"
+                )
+            }
+        };
+        stdout
+            .queue(cursor::MoveToColumn(
+                self.width
+                    .saturating_sub(visible_width(&help_message.to_string()) + 1)
+                    as u16,
+            ))?
+            .queue(Print(help_message))?
+            .queue(MoveToColumn(self.x))?;
         Ok(())
     }
 
