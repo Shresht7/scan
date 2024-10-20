@@ -100,31 +100,55 @@ impl CommandLine {
         event: &Event,
     ) -> Result<bool, Box<dyn std::error::Error>> {
         match event {
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                match key_event.code {
-                    KeyCode::Esc => {
-                        self.mode = Mode::Base;
-                        self.input.clear();
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => match key_event {
+                KeyEvent {
+                    code: KeyCode::Esc, ..
+                } => {
+                    self.mode = Mode::Base;
+                    self.input.clear();
+                    return Ok(true);
+                }
+                KeyEvent {
+                    modifiers: KeyModifiers::CONTROL,
+                    code: KeyCode::Char('f'),
+                    ..
+                } => {
+                    self.mode = Mode::Search;
+                    self.input.clear();
+                    return Ok(true);
+                }
+                KeyEvent {
+                    modifiers: KeyModifiers::CONTROL,
+                    code: KeyCode::Char('g'),
+                    ..
+                } => {
+                    self.mode = Mode::Goto;
+                    self.input.clear();
+                    return Ok(true);
+                }
+                KeyEvent {
+                    code: KeyCode::Char(c),
+                    ..
+                } => {
+                    if self.mode == Mode::Goto && !c.is_numeric() {
                         return Ok(true);
                     }
-                    KeyCode::Char(c) => {
-                        if self.mode == Mode::Goto && !c.is_numeric() {
-                            return Ok(true);
-                        }
-                        self.input.push(c)
-                    }
-                    KeyCode::Backspace => {
-                        if key_event.modifiers == KeyModifiers::CONTROL {
-                            let mut words: Vec<&str> = self.input.split(" ").collect();
-                            words.pop();
-                            self.input = words.join(" ");
-                        } else {
-                            self.input.pop();
-                        }
-                    }
-                    _ => {}
+                    self.input.push(c.clone())
                 }
-            }
+                KeyEvent {
+                    code: KeyCode::Backspace,
+                    ..
+                } => {
+                    if key_event.modifiers == KeyModifiers::CONTROL {
+                        let mut words: Vec<&str> = self.input.split(" ").collect();
+                        words.pop();
+                        self.input = words.join(" ");
+                    } else {
+                        self.input.pop();
+                    }
+                }
+                _ => {}
+            },
             _ => {}
         }
         Ok(false)
