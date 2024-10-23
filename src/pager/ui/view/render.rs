@@ -6,66 +6,10 @@ use crossterm::{
     QueueableCommand,
 };
 
+use super::View;
 use crate::helpers;
 
-/// Represents a viewport
-#[derive(Default, Clone, PartialEq, Eq)]
-pub struct View {
-    /// The string to search for in the view
-    pub search: String,
-
-    /// The index of the first-line to display in the viewport
-    pub scroll_row: usize,
-    /// The index of the first-column to display in the viewport
-    pub scroll_col: usize,
-
-    /// Should show line numbers
-    pub show_line_numbers: bool,
-    /// Show borders
-    pub show_borders: bool,
-
-    /// The x-position of the element
-    pub x: u16,
-    /// The y-position of the element
-    pub y: u16,
-
-    /// The height of the viewport
-    pub height: usize,
-    /// The width of the viewport
-    pub width: usize,
-
-    /// The borders around the viewport
-    borders: helpers::Borders,
-}
-
 impl View {
-    /// The start of the viewport. Index of the first visible line
-    pub fn start(&self) -> usize {
-        self.scroll_row
-    }
-
-    /// The end of the viewport. Index of the last visible line
-    pub fn end(&self) -> usize {
-        let borders = if self.show_borders {
-            self.borders.height_reduction()
-        } else {
-            0
-        };
-        self.scroll_row + self.height - borders
-    }
-
-    /// Perform setup. The setup function is called once on initialization
-    pub fn setup(
-        &mut self,
-        stdout: &mut std::io::Stdout,
-        size: (usize, usize),
-    ) -> std::io::Result<()> {
-        self.width = size.0;
-        self.height = size.1;
-        self.render_borders(stdout)?;
-        Ok(())
-    }
-
     /// Render the view component
     pub fn render(
         &self,
@@ -79,19 +23,24 @@ impl View {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
 
+            let mut found_something = false;
+
             // If the line matches the search criteria
             if !self.search.is_empty() {
                 let mut highlighted_line = String::new();
                 let mut remaining = &line[..];
 
                 while let Some(start_idx) = remaining.find(&self.search) {
+                    found_something = true;
+
                     // Add text before the match
                     highlighted_line.push_str(&remaining[..start_idx]);
 
                     // Add the highlighted match
                     let end_idx = start_idx + self.search.len();
                     let match_str = &remaining[start_idx..end_idx];
-                    highlighted_line.push_str(&style(match_str).reverse().to_string());
+                    highlighted_line
+                        .push_str(&style(match_str).black().on_white().bold().to_string());
 
                     // Move the remaining slice to after the match
                     remaining = &remaining[end_idx..];
@@ -108,6 +57,10 @@ impl View {
                     Some((_, x)) => String::from(x),
                     None => String::new(),
                 }
+            }
+
+            if !self.search.is_empty() && !found_something {
+                line = style(line).dark_grey().to_string();
             }
 
             // Prepend line numbers if the option was set
