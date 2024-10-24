@@ -19,6 +19,8 @@ pub struct CommandLine {
     pub height: usize,
     /// The width in number of columns
     pub width: usize,
+    /// Whether the element is currently in focus
+    pub is_focussed: bool,
 }
 
 /// Describes the states the command-line can be in

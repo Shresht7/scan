@@ -32,6 +32,7 @@ impl CommandLine {
                 } => {
                     self.mode = Mode::Search;
                     self.input.clear();
+                    self.is_focussed = true;
                     return Ok(true);
                 }
                 KeyEvent {
@@ -41,12 +42,17 @@ impl CommandLine {
                 } => {
                     self.mode = Mode::Goto;
                     self.input.clear();
+                    self.is_focussed = true;
                     return Ok(true);
                 }
                 KeyEvent {
                     code: KeyCode::Char(c),
                     ..
                 } => {
+                    if !self.is_focussed {
+                        // Don't record input if not currently focussed
+                        return Ok(false);
+                    }
                     if self.mode == Mode::Goto {
                         if c == &':' || c.is_numeric() {
                             self.input.push(c.clone());
@@ -91,7 +97,10 @@ impl CommandLine {
                     modifiers: KeyModifiers::CONTROL,
                     code: KeyCode::Char('f'),
                     ..
-                } => self.mode = Mode::Search,
+                } => {
+                    self.mode = Mode::Search;
+                    self.is_focussed = true;
+                }
 
                 // Switch to Goto Mode
                 KeyEvent {
@@ -102,7 +111,10 @@ impl CommandLine {
                     modifiers: KeyModifiers::CONTROL,
                     code: KeyCode::Char('g'),
                     ..
-                } => self.mode = Mode::Goto,
+                } => {
+                    self.mode = Mode::Goto;
+                    self.is_focussed = true;
+                }
 
                 // Catch all
                 _ => {}

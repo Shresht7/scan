@@ -127,6 +127,14 @@ impl Pager {
     /// Set the focus on an element
     pub fn set_focus(&mut self, to: Focus) {
         self.focus = to;
+        match self.focus {
+            Focus::View => {
+                self.command_line.is_focussed = false;
+            }
+            Focus::CommandLine => {
+                self.command_line.is_focussed = true;
+            }
+        }
     }
 
     // HELPER FUNCTIONS
