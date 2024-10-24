@@ -9,6 +9,9 @@ pub struct View {
     /// The string to search for in the view
     pub search: String,
 
+    /// Holds the line-number and start-index of any search matches
+    search_matches: Vec<(u16, u16)>,
+
     /// The index of the first-line to display in the viewport
     pub scroll_row: usize,
     /// The index of the first-column to display in the viewport

@@ -12,7 +12,7 @@ use crate::helpers;
 impl View {
     /// Render the view component
     pub fn render(
-        &self,
+        &mut self,
         stdout: &mut std::io::Stdout,
         lines: &Vec<String>,
     ) -> std::io::Result<Self> {
@@ -22,8 +22,7 @@ impl View {
         for (i, l) in lines[start..end].iter().enumerate() {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
-
-            let mut found_something = false;
+            let mut search_matches = Vec::new();
 
             // If the line matches the search criteria
             if !self.search.is_empty() {
@@ -31,13 +30,13 @@ impl View {
                 let mut remaining = &line[..];
 
                 while let Some(start_idx) = remaining.find(&self.search) {
-                    found_something = true;
+                    let end_idx = start_idx + self.search.len();
+                    search_matches.push(((start + i) as u16, start_idx as u16));
 
                     // Add text before the match
                     highlighted_line.push_str(&remaining[..start_idx]);
 
                     // Add the highlighted match
-                    let end_idx = start_idx + self.search.len();
                     let match_str = &remaining[start_idx..end_idx];
                     highlighted_line
                         .push_str(&style(match_str).black().on_white().bold().to_string());
@@ -50,6 +49,8 @@ impl View {
                 highlighted_line.push_str(remaining);
                 line = highlighted_line;
             }
+            let found_something = !search_matches.is_empty();
+            self.search_matches = search_matches;
 
             // Clip the string for horizontal scroll
             if self.scroll_col > 0 {
