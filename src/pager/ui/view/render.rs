@@ -22,7 +22,8 @@ impl View {
         for (i, l) in lines[start..end].iter().enumerate() {
             // The final formatted line to be printed to the terminal
             let mut line = String::from(l);
-            let mut search_matches = Vec::new();
+
+            let mut found_something = false;
 
             // If the line matches the search criteria
             if !self.search.is_empty() {
@@ -31,11 +32,9 @@ impl View {
 
                 while let Some(start_idx) = remaining.find(&self.search) {
                     let end_idx = start_idx + self.search.len();
-                    let m = ((start + i) as u16, start_idx as u16);
-                    search_matches.push(m);
-                    if let None = self.search_match_index {
-                        self.search_match_index = Some(m);
-                    }
+                    let m = ((start + i) as u16, start_idx as u16, end_idx as u16);
+                    self.search_matches.push(m);
+                    found_something = true;
 
                     // Add text before the match
                     highlighted_line.push_str(&remaining[..start_idx]);
@@ -43,15 +42,16 @@ impl View {
                     // Add the highlighted match
                     let match_str = &remaining[start_idx..end_idx];
 
-                    let format_match_str = if let Some(x) = self.search_match_index {
-                        if x == m {
-                            style(match_str).black().on_yellow().bold().to_string()
+                    let format_match_str =
+                        if let Some(x) = self.search_matches.get(self.search_match_index) {
+                            if x.0 == m.0 && x.1 == m.1 && x.2 == m.2 {
+                                style(match_str).black().on_yellow().bold().to_string()
+                            } else {
+                                style(match_str).black().on_white().bold().to_string()
+                            }
                         } else {
                             style(match_str).black().on_white().bold().to_string()
-                        }
-                    } else {
-                        style(match_str).black().on_white().bold().to_string()
-                    };
+                        };
                     highlighted_line.push_str(&format_match_str);
 
                     // Move the remaining slice to after the match
@@ -62,8 +62,6 @@ impl View {
                 highlighted_line.push_str(remaining);
                 line = highlighted_line;
             }
-            let found_something = !search_matches.is_empty();
-            self.search_matches = search_matches;
 
             // Clip the string for horizontal scroll
             if self.scroll_col > 0 {
