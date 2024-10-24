@@ -1,6 +1,6 @@
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 
-use super::{ui::Mode, Pager};
+use super::{ui::Mode, Focus, Pager};
 use crate::helpers;
 
 impl Pager {
@@ -68,7 +68,8 @@ impl Pager {
 
     /// Search for the given input
     fn search(&mut self) {
-        self.view.search = self.command_line.input.clone()
+        self.view.search = self.command_line.input.clone();
+        self.set_focus(Focus::View);
     }
 
     /// Jump to the provided line number and column
