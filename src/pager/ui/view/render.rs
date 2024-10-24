@@ -31,15 +31,28 @@ impl View {
 
                 while let Some(start_idx) = remaining.find(&self.search) {
                     let end_idx = start_idx + self.search.len();
-                    search_matches.push(((start + i) as u16, start_idx as u16));
+                    let m = ((start + i) as u16, start_idx as u16);
+                    search_matches.push(m);
+                    if let None = self.search_match_index {
+                        self.search_match_index = Some(m);
+                    }
 
                     // Add text before the match
                     highlighted_line.push_str(&remaining[..start_idx]);
 
                     // Add the highlighted match
                     let match_str = &remaining[start_idx..end_idx];
-                    highlighted_line
-                        .push_str(&style(match_str).black().on_white().bold().to_string());
+
+                    let format_match_str = if let Some(x) = self.search_match_index {
+                        if x == m {
+                            style(match_str).black().on_yellow().bold().to_string()
+                        } else {
+                            style(match_str).black().on_white().bold().to_string()
+                        }
+                    } else {
+                        style(match_str).black().on_white().bold().to_string()
+                    };
+                    highlighted_line.push_str(&format_match_str);
 
                     // Move the remaining slice to after the match
                     remaining = &remaining[end_idx..];
