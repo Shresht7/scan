@@ -16,6 +16,20 @@ impl View {
         stdout: &mut std::io::Stdout,
         lines: &Vec<String>,
     ) -> std::io::Result<Self> {
+        // Get the currently selected match
+        let selected = if self.search_matches.len() > 0 {
+            self.search_matches
+                .get(self.search_match_index % self.search_matches.len())
+                .unwrap_or(&(0 as u16, 0 as u16, 0 as u16))
+        } else {
+            &(0 as u16, 0 as u16, 0 as u16)
+        };
+
+        // If selected is out of view, scroll to it
+        if selected.0 > self.end() as u16 || selected.0 < self.start() as u16 {
+            self.scroll_row = (selected.0 as usize).saturating_sub(5);
+        }
+
         // Iterate over the lines in the viewport ...
         let start = self.start();
         let end = std::cmp::min(self.end(), lines.len());
@@ -35,15 +49,6 @@ impl View {
 
                         // Add text before the match
                         highlighted_line.push_str(&line[..*si as usize]);
-
-                        // Get the currently selected match
-                        let selected = self.search_matches
-                            [self.search_match_index % self.search_matches.len()];
-
-                        // If selected is out of view, scroll to it
-                        if selected.0 > self.end() as u16 {
-                            self.scroll_row = selected.0 as usize;
-                        }
 
                         // Add the highlighted match
                         let match_str = &line[*si as usize..*ei as usize];
