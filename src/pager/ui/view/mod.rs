@@ -10,7 +10,7 @@ pub struct View {
     pub search: String,
 
     /// Holds the line-number and start-index of any search matches
-    search_matches: Vec<(u16, u16, u16)>,
+    pub search_matches: Vec<(u16, u16, u16)>,
 
     search_match_index: usize,
 

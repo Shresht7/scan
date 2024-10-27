@@ -69,6 +69,27 @@ impl Pager {
     /// Search for the given input
     fn search(&mut self) {
         self.view.search = self.command_line.input.clone();
+        if self.view.search.is_empty() {
+            return;
+        }
+
+        for (i, line) in self.lines.iter().enumerate() {
+            let mut remaining = &line[..];
+            let mut last_pos = 0;
+            while let Some(start_idx) = remaining.find(&self.view.search) {
+                let start_idx = last_pos + start_idx;
+                let end_idx = start_idx + self.view.search.len();
+                let m = (
+                    (self.view.start() + i) as u16,
+                    start_idx as u16,
+                    end_idx as u16,
+                );
+                self.view.search_matches.push(m);
+                last_pos = end_idx;
+                remaining = &remaining[end_idx..];
+            }
+        }
+
         self.set_focus(Focus::View);
     }
 
