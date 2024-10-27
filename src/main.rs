@@ -27,14 +27,13 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Instantiate a reader to read from. This can be a file or standard input
     let mut reader = helpers::get_reader(&args.file)?;
 
-    // ! FIXME: Disable passthrough for debug terminal which returns false for is_tty(), for now
     // Determine if we are in passthrough mode.
     // If the `passthrough` flag is set, or the terminal is not interactive...
     // we simply pipe the output through
-    // if args.passthrough || !stdout.is_tty() {
-    //     std::io::copy(&mut reader, &mut stdout)?;
-    //     return Ok(());
-    // }
+    if !args._debug && (args.passthrough || !stdout.is_tty()) {
+        std::io::copy(&mut reader, &mut stdout)?;
+        return Ok(());
+    }
 
     // Initialize the Pager application
     let size = crossterm::terminal::size()?;

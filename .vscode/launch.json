@@ -20,7 +20,8 @@
                 }
             },
             "args": [
-                "src/main.rs"
+                "src/main.rs",
+                "--DEBUG",
             ],
             "cwd": "${workspaceFolder}"
         },
@@ -41,7 +42,8 @@
                 }
             },
             "args": [
-                "src/main.rs"
+                "src/main.rs",
+                "--DEBUG"
             ],
             "cwd": "${workspaceFolder}"
         }
