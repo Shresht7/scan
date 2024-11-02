@@ -33,6 +33,8 @@ pub struct View {
     pub height: usize,
     /// The width of the viewport in number of columns
     pub width: usize,
+    /// Whether the element is currently in focus
+    pub is_focussed: bool,
 
     /// The borders around the viewport
     borders: helpers::Borders,

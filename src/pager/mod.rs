@@ -130,9 +130,11 @@ impl Pager {
         match self.focus {
             Focus::View => {
                 self.command_line.is_focussed = false;
+                self.view.is_focussed = true;
             }
             Focus::CommandLine => {
                 self.command_line.is_focussed = true;
+                self.view.is_focussed = false;
             }
         }
     }
