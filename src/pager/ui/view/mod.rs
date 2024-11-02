@@ -12,6 +12,7 @@ pub struct View {
     /// Holds the line-number and start-index of any search matches
     pub search_matches: Vec<(u16, u16, u16)>,
 
+    /// The index of the currently highlighted search match
     search_match_index: usize,
 
     /// The index of the first-line to display in the viewport

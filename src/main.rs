@@ -30,6 +30,7 @@ fn run(args: &cli::Args) -> Result<(), Box<dyn std::error::Error>> {
     // Determine if we are in passthrough mode.
     // If the `passthrough` flag is set, or the terminal is not interactive...
     // we simply pipe the output through
+    // When in DEBUG mode, we force the application to run in the interactive mode.
     if !args._debug && (args.passthrough || !stdout.is_tty()) {
         std::io::copy(&mut reader, &mut stdout)?;
         return Ok(());
