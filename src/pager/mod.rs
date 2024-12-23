@@ -15,6 +15,9 @@ pub struct Pager {
     /// The application's command line
     command_line: ui::CommandLine,
 
+    /// The currently focussed ui
+    focus: Focus,
+
     /// Stores a snapshot of the previously rendered view.
     prev: PreviousFrame,
 
@@ -28,6 +31,13 @@ pub struct Pager {
 
     /// If true, exit the program
     exit: bool,
+}
+
+#[derive(Default)]
+pub enum Focus {
+    View,
+    #[default]
+    CommandLine,
 }
 
 #[derive(Default)]
@@ -112,6 +122,21 @@ impl Pager {
             .setup((0, self.height as u16), (self.width, sizes[1]))?;
 
         Ok(())
+    }
+
+    /// Set the focus on an element
+    pub fn set_focus(&mut self, to: Focus) {
+        self.focus = to;
+        match self.focus {
+            Focus::View => {
+                self.command_line.is_focussed = false;
+                self.view.is_focussed = true;
+            }
+            Focus::CommandLine => {
+                self.command_line.is_focussed = true;
+                self.view.is_focussed = false;
+            }
+        }
     }
 
     // HELPER FUNCTIONS

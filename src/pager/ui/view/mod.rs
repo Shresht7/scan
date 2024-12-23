@@ -9,6 +9,12 @@ pub struct View {
     /// The string to search for in the view
     pub search: String,
 
+    /// Holds the line-number and start-index of any search matches
+    pub search_matches: Vec<(u16, u16, u16)>,
+
+    /// The index of the currently highlighted search match
+    search_match_index: usize,
+
     /// The index of the first-line to display in the viewport
     pub scroll_row: usize,
     /// The index of the first-column to display in the viewport
@@ -27,6 +33,8 @@ pub struct View {
     pub height: usize,
     /// The width of the viewport in number of columns
     pub width: usize,
+    /// Whether the element is currently in focus
+    pub is_focussed: bool,
 
     /// The borders around the viewport
     borders: helpers::Borders,

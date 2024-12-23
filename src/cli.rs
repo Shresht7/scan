@@ -23,4 +23,8 @@ pub struct Args {
     /// Read the entire file in one go
     #[clap(short, long)]
     pub all: bool,
+
+    /// (Only for Development): A flag to allow the debugger to bypass the non-interactive check
+    #[clap(long = "DEBUG", hide = true)]
+    pub _debug: bool,
 }

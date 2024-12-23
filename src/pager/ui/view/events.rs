@@ -19,6 +19,14 @@ impl View {
                     KeyCode::PageUp => self.page_up(),
                     KeyCode::PageDown => self.page_down(lines),
                     KeyCode::Home => self.home(),
+                    KeyCode::Char('n') => {
+                        self.search_match_index = self.search_match_index.saturating_add(1);
+                        return Ok(false);
+                    }
+                    KeyCode::Char('N') => {
+                        self.search_match_index = self.search_match_index.saturating_sub(1);
+                        return Ok(false);
+                    }
                     _ => false,
                 }
             }

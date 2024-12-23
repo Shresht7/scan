@@ -38,7 +38,9 @@ impl CommandLine {
     fn render_input(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
         stdout.queue(Print(" "))?; // Apply some padding
 
-        let cursor = style("|").rapid_blink();
+        // Render the cursor, but only if the input is focussed
+        let cursor = if self.is_focussed { "|" } else { "" };
+        let cursor = style(cursor).rapid_blink();
 
         if self.input.len() > 0 {
             stdout.queue(Print(&self.input))?.queue(Print(cursor))?;

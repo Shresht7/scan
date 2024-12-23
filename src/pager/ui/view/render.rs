@@ -12,10 +12,24 @@ use crate::helpers;
 impl View {
     /// Render the view component
     pub fn render(
-        &self,
+        &mut self,
         stdout: &mut std::io::Stdout,
         lines: &Vec<String>,
     ) -> std::io::Result<Self> {
+        // Get the currently selected match
+        let selected = if self.search_matches.len() > 0 {
+            self.search_matches
+                .get(self.search_match_index % self.search_matches.len())
+                .unwrap_or(&(0 as u16, 0 as u16, 0 as u16))
+        } else {
+            &(0 as u16, 0 as u16, 0 as u16)
+        };
+
+        // If selected is out of view, scroll to it
+        if selected.0 > self.end() as u16 || selected.0 < self.start() as u16 {
+            self.scroll_row = (selected.0 as usize).saturating_sub(5);
+        }
+
         // Iterate over the lines in the viewport ...
         let start = self.start();
         let end = std::cmp::min(self.end(), lines.len());
@@ -28,27 +42,32 @@ impl View {
             // If the line matches the search criteria
             if !self.search.is_empty() {
                 let mut highlighted_line = String::new();
-                let mut remaining = &line[..];
 
-                while let Some(start_idx) = remaining.find(&self.search) {
-                    found_something = true;
+                for (ln, si, ei) in &self.search_matches {
+                    if start + i == *ln as usize {
+                        found_something = true;
 
-                    // Add text before the match
-                    highlighted_line.push_str(&remaining[..start_idx]);
+                        // Add text before the match
+                        highlighted_line.push_str(&line[..*si as usize]);
 
-                    // Add the highlighted match
-                    let end_idx = start_idx + self.search.len();
-                    let match_str = &remaining[start_idx..end_idx];
-                    highlighted_line
-                        .push_str(&style(match_str).black().on_white().bold().to_string());
+                        // Add the highlighted match
+                        let match_str = &line[*si as usize..*ei as usize];
+                        let format_match_str =
+                            if selected.0 == *ln && selected.1 == *si && selected.2 == *ei {
+                                style(match_str).black().on_yellow().bold().to_string()
+                            } else {
+                                style(match_str).black().on_white().bold().to_string()
+                            };
+                        highlighted_line.push_str(&format_match_str);
 
-                    // Move the remaining slice to after the match
-                    remaining = &remaining[end_idx..];
+                        // Add any remaining text after the last match
+                        highlighted_line.push_str(&line[*ei as usize..]);
+                    }
                 }
 
-                // Add any remaining text after the last match
-                highlighted_line.push_str(remaining);
-                line = highlighted_line;
+                if found_something {
+                    line = highlighted_line;
+                }
             }
 
             // Clip the string for horizontal scroll
