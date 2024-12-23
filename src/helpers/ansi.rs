@@ -9,7 +9,7 @@ pub fn visible_width(s: &str) -> usize {
     while let Some(c) = chars.next() {
         // If we have not encountered a ESC yet ...
         if c != ESC {
-            width += 1
+            width += 1 // ... keep adding 1 to the width (char count)
         } else {
             // .. otherwise, we hit the start of an ESC sequence
             'esc_sequence: while let Some(c) = chars.next() {
@@ -24,7 +24,7 @@ pub fn visible_width(s: &str) -> usize {
                             }
                         }
                     }
-                    _ => width += 1,
+                    _ => width += 1, // If outside a control sequence, continue adding 1 to the width (char count)
                 }
             }
         }
@@ -33,15 +33,20 @@ pub fn visible_width(s: &str) -> usize {
     width
 }
 
+/// Truncate the given string to the given width accounting for the ANSI escape sequences
 pub fn truncate_visible(s: &str, width: usize) -> String {
     let mut trunc = String::new();
     let mut chars = s.chars();
+
     while let Some(c) = chars.next() {
         trunc.push(c);
+        // TODO: Calling visible_width over and over is extremely silly
+        // Adapt the loop above to perform the truncation in one go
         if visible_width(&trunc) >= width {
             break;
         }
     }
+
     trunc
 }
 
